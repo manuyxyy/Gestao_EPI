@@ -1,0 +1,19 @@
+
+PROJETO EPISAFE - PHP E MYSQL
+
+1. Coloque a pasta episafe_php dentro de htdocs.
+2. Inicie o Apache e o MySQL no XAMPP.
+3. Abra http://localhost/phpmyadmin
+4. Importe o arquivo banco.sql.
+5. Confira os dados de conexão em conexao.php.
+6. Cadastre o primeiro administrador no banco.
+7. Acesse http://localhost/episafe_php/index.php
+
+O login usa a tabela usuarios.
+Os perfis disponíveis são:
+- administrador
+- gestor
+- funcionario
+- almoxarifado
+
+A senha deve ser armazenada com password_hash().
