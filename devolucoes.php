@@ -80,26 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$entregas = buscar_todos(
-    $conn,
-    "SELECT e.id, f.nome AS funcionario,
-            p.nome AS epi, e.quantidade, e.data_entrega
-     FROM entregas e
-     LEFT JOIN funcionarios f ON f.id = e.funcionario_id
-     LEFT JOIN epis p ON p.id = e.epi_id
-     ORDER BY e.id DESC"
-);
-
-$linhas = buscar_todos(
-    $conn,
-    "SELECT d.data_devolucao, f.nome AS funcionario,
-            p.nome AS epi, d.quantidade, d.estado
-     FROM devolucoes d
-     LEFT JOIN funcionarios f ON f.id = d.funcionario_id
-     LEFT JOIN epis p ON p.id = d.epi_id
-     ORDER BY d.id DESC"
-);
-
 cabecalho(
     'Devolução de EPIs',
     'Registre o retorno dos equipamentos entregues'
@@ -109,95 +89,106 @@ cabecalho(
 <?php if ($mensagem): ?>
     <p class="alerta sucesso"><?= h($mensagem) ?></p>
 <?php endif; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="devolucao.css">
+</head>
+<body>
 
-<div class="content-card">
+        <div class="content-card">
 
-    <h2>Registrar devolução</h2>
+            <h2>Registrar devolução</h2>
 
-    <form method="POST" class="form-grid">
+            <form method="POST" class="form-grid">
 
-        <div>
-            <label>Entrega original</label>
-            <select name="entrega_id" required>
-                <option value="">Selecione</option>
-                <?php foreach ($entregas as $e): ?>
-                    <option value="<?= h($e['id']) ?>">
-                        #<?= h($e['id']) ?> -
-                        <?= h($e['funcionario']) ?> /
-                        <?= h($e['epi']) ?>
-                        (<?= h($e['quantidade']) ?>)
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                <div>
+                    <label>Entrega original</label>
+                    <select name="entrega_id" required>
+                        <option value="">Selecione</option>
+                        <?php foreach ($entregas as $e): ?>
+                            <option value="<?= h($e['id']) ?>">
+                                #<?= h($e['id']) ?> -
+                                <?= h($e['funcionario']) ?> /
+                                <?= h($e['epi']) ?>
+                                (<?= h($e['quantidade']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Quantidade devolvida</label>
+                    <input type="number" name="quantidade"
+                        min="1" value="1" required>
+                </div>
+
+                <div>
+                    <label>Estado do EPI</label>
+                    <select name="estado">
+                        <option>Bom</option>
+                        <option>Danificado</option>
+                        <option>Descartado</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Observação</label>
+                    <input name="observacao" placeholder="Opcional">
+                </div>
+
+                <div class="form-action">
+                    <button class="botao" type="submit">
+                        Registrar devolução
+                    </button>
+                </div>
+
+            </form>
         </div>
 
-        <div>
-            <label>Quantidade devolvida</label>
-            <input type="number" name="quantidade"
-                   min="1" value="1" required>
-        </div>
+        <div class="content-card">
 
-        <div>
-            <label>Estado do EPI</label>
-            <select name="estado">
-                <option>Bom</option>
-                <option>Danificado</option>
-                <option>Descartado</option>
-            </select>
-        </div>
+            <h2>Devoluções registradas</h2>
 
-        <div>
-            <label>Observação</label>
-            <input name="observacao" placeholder="Opcional">
-        </div>
-
-        <div class="form-action">
-            <button class="botao" type="submit">
-                Registrar devolução
-            </button>
-        </div>
-
-    </form>
-</div>
-
-<div class="content-card">
-
-    <h2>Devoluções registradas</h2>
-
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Funcionário</th>
-                    <th>EPI</th>
-                    <th>Quantidade</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php if (!$linhas): ?>
-                    <tr>
-                        <td colspan="5">
-                            Nenhuma devolução cadastrada.
-                        </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($linhas as $l): ?>
+            <div class="table-wrap">
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= h($l['data_devolucao']) ?></td>
-                            <td><?= h($l['funcionario'] ?? '-') ?></td>
-                            <td><?= h($l['epi'] ?? '-') ?></td>
-                            <td><?= h($l['quantidade']) ?></td>
-                            <td><?= h($l['estado']) ?></td>
+                            <th>Data</th>
+                            <th>Funcionário</th>
+                            <th>EPI</th>
+                            <th>Quantidade</th>
+                            <th>Estado</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                    </thead>
 
-</div>
+                    <tbody>
+                        <?php if (!$linhas): ?>
+                            <tr>
+                                <td colspan="5">
+                                    Nenhuma devolução cadastrada.
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($linhas as $l): ?>
+                                <tr>
+                                    <td><?= h($l['data_devolucao']) ?></td>
+                                    <td><?= h($l['funcionario'] ?? '-') ?></td>
+                                    <td><?= h($l['epi'] ?? '-') ?></td>
+                                    <td><?= h($l['quantidade']) ?></td>
+                                    <td><?= h($l['estado']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
+        </div>
+
+</body>
+</html>
 <?php rodape(); ?>

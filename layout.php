@@ -1,12 +1,12 @@
 
 <?php
-require_once 'auth.php';
+require_once __DIR__ . '/auth.php';
 
 function cabecalho($titulo, $descricao = '') {
     $pagina = basename($_SERVER['PHP_SELF']);
 
     $links = [
-        'dashboard.php' => ['Início', '⌂'],
+        'dashboard_admin.php' => ['Início', '⌂', ],
         'entregas.php' => ['Entregas', '▤'],
         'devolucoes.php' => ['Devoluções', '⟲'],
         'epis.php' => ['EPIs', '♧'],
@@ -72,11 +72,4 @@ function h($valor) {
     );
 }
 
-function buscar_todos($conn, $sql) {
-    try {
-        return $conn->query($sql)->fetchAll();
-    } catch (PDOException $e) {
-        return [];
-    }
-}
 ?>

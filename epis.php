@@ -67,14 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$linhas = buscar_todos(
-    $conn,
-    "SELECT p.nome, p.categoria, p.ca, p.validade_ca,
-            p.status, COALESCE(s.quantidade, 0) AS quantidade
-     FROM epis p
-     LEFT JOIN estoque s ON s.epi_id = p.id
-     ORDER BY p.nome"
-);
 
 cabecalho(
     'Cadastro de EPIs',
@@ -85,102 +77,111 @@ cabecalho(
 <?php if ($mensagem): ?>
     <p class="alerta <?= h($tipoMensagem) ?>"><?= h($mensagem) ?></p>
 <?php endif; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="epis.css">
+</head>
+<body>
+        <div class="content-card">
 
-<div class="content-card">
+            <h2>Novo EPI</h2>
 
-    <h2>Novo EPI</h2>
+            <form method="POST" class="form-grid">
 
-    <form method="POST" class="form-grid">
+                <div>
+                    <label>Nome do EPI</label>
+                    <input name="nome" required>
+                </div>
 
-        <div>
-            <label>Nome do EPI</label>
-            <input name="nome" required>
+                <div>
+                    <label>Categoria</label>
+                    <input name="categoria">
+                </div>
+
+                <div>
+                    <label>Certificado de Aprovação (CA)</label>
+                    <input name="ca">
+                </div>
+
+                <div>
+                    <label>Validade do CA</label>
+                    <input type="date" name="validade_ca">
+                </div>
+
+                <div>
+                    <label>Quantidade inicial</label>
+                    <input type="number" name="quantidade"
+                        min="0" value="0">
+                </div>
+
+                <div>
+                    <label>Estoque mínimo</label>
+                    <input type="number" name="minimo"
+                        min="0" value="5">
+                </div>
+
+                <div>
+                    <label>Localização</label>
+                    <input name="localizacao" value="Almoxarifado">
+                </div>
+
+                <div>
+                    <label>Descrição</label>
+                    <input name="descricao">
+                </div>
+
+                <div class="form-action">
+                    <button class="botao" type="submit">
+                        + Cadastrar EPI
+                    </button>
+                </div>
+
+            </form>
         </div>
 
-        <div>
-            <label>Categoria</label>
-            <input name="categoria">
-        </div>
+        <div class="content-card">
 
-        <div>
-            <label>Certificado de Aprovação (CA)</label>
-            <input name="ca">
-        </div>
+            <h2>EPIs cadastrados</h2>
 
-        <div>
-            <label>Validade do CA</label>
-            <input type="date" name="validade_ca">
-        </div>
-
-        <div>
-            <label>Quantidade inicial</label>
-            <input type="number" name="quantidade"
-                   min="0" value="0">
-        </div>
-
-        <div>
-            <label>Estoque mínimo</label>
-            <input type="number" name="minimo"
-                   min="0" value="5">
-        </div>
-
-        <div>
-            <label>Localização</label>
-            <input name="localizacao" value="Almoxarifado">
-        </div>
-
-        <div>
-            <label>Descrição</label>
-            <input name="descricao">
-        </div>
-
-        <div class="form-action">
-            <button class="botao" type="submit">
-                + Cadastrar EPI
-            </button>
-        </div>
-
-    </form>
-</div>
-
-<div class="content-card">
-
-    <h2>EPIs cadastrados</h2>
-
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Categoria</th>
-                    <th>CA</th>
-                    <th>Validade</th>
-                    <th>Quantidade</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php if (!$linhas): ?>
-                    <tr>
-                        <td colspan="6">Nenhum EPI cadastrado.</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($linhas as $l): ?>
+            <div class="table-wrap">
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= h($l['nome']) ?></td>
-                            <td><?= h($l['categoria'] ?: '-') ?></td>
-                            <td><?= h($l['ca'] ?: '-') ?></td>
-                            <td><?= h($l['validade_ca'] ? date('d/m/Y', strtotime($l['validade_ca'])) : '-') ?></td>
-                            <td><?= h($l['quantidade']) ?></td>
-                            <td><?= h($l['status']) ?></td>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>CA</th>
+                            <th>Validade</th>
+                            <th>Quantidade</th>
+                            <th>Status</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                    </thead>
 
-</div>
+                    <tbody>
+                        <?php if (!$linhas): ?>
+                            <tr>
+                                <td colspan="6">Nenhum EPI cadastrado.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($linhas as $l): ?>
+                                <tr>
+                                    <td><?= h($l['nome']) ?></td>
+                                    <td><?= h($l['categoria'] ?: '-') ?></td>
+                                    <td><?= h($l['ca'] ?: '-') ?></td>
+                                    <td><?= h($l['validade_ca'] ? date('d/m/Y', strtotime($l['validade_ca'])) : '-') ?></td>
+                                    <td><?= h($l['quantidade']) ?></td>
+                                    <td><?= h($l['status']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
+        </div>
+</body>
+</html>
 <?php rodape(); ?>

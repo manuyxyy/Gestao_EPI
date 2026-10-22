@@ -1,31 +1,46 @@
 <?php
-session_start();
 require_once 'conexao.php';
-
-$mensagem_erro = '';
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $senha = trim($_POST['senha'] ?? '');
 
-    if (!empty($email) && !empty($senha)) {
-        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ? AND ativo = 1");
+    if ($email === '' || $senha === '') {
+        $erro = "Preencha todos os campos.";
+    } else {
+        // Buscar usuário pelo email
+        $stmt = $pdo->prepare("SELECT id, nome, senha, funcao FROM usuarios WHERE email = ?");
         $stmt->execute([$email]);
         $usuario = $stmt->fetch();
 
-        // Para ambiente de teste/produção: password_verify($senha, $usuario['senha'])
-        if ($usuario && $senha === $usuario['senha']) {
-            $_SESSION['usuario_id'] = $usuario['id_usuario'];
+        // Verificar senha
+        if ($usuario && password_verify($senha, $usuario['senha'])) {
+            $_SESSION['usuario_id']   = $usuario['id'];
             $_SESSION['usuario_nome'] = $usuario['nome'];
-            $_SESSION['usuario_perfil'] = $usuario['perfil'];
+            $_SESSION['usuario_funcao'] = $usuario['funcao'];   
 
-            header('Location: index.php');
+            // Redirecionar conforme função
+            switch ($usuario['funcao']) {
+                case 'Administrador':
+                    header("Location: dashboard_admin.php");
+                    break;
+                case 'Gestor':
+                    header("Location: dashboard_gestor.php");
+                    break;
+                case 'Funcionario':
+                    header("Location: dashboard_funcionario.php");
+                    break;
+                case 'Almoxarifado':
+                    header("Location: dashboard_almoxarifado.php");
+                    break;
+                default:
+                    header("Location: dashboard.php");
+            }
             exit;
         } else {
-            $mensagem_erro = "E-mail ou palavra-passe incorretos!";
+            $erro = "Usuário ou senha inválidos.";
         }
-    } else {
-        $mensagem_erro = "Por favor, preencha todos os campos.";
     }
 }
 ?>
@@ -33,42 +48,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gestão de EPIs</title>
-    <link rel="stylesheet" href="login.css">
+    <title>Login</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-
-    <div class="login-card">
-        <div class="login-header">
-            <h2>Sistema EPI</h2>
-            <p>Aceda ao controlo de Equipamentos de Proteção Individual</p>
-        </div>
-
-        <?php if (!empty($mensagem_erro)): ?>
-            <div class="alert-error">
-                <?= htmlspecialchars($mensagem_erro); ?>
-            </div>
+    <div class="login-container">
+        <h2>Login</h2>
+        <?php if (!empty($erro)): ?>
+            <div class="alert-error"><?= htmlspecialchars($erro) ?></div>
         <?php endif; ?>
-
-        <form action="login.php" method="POST" class="login-form">
+        <form method="post">
             <div class="form-group">
-                <label for="email">E-mail Corporativo</label>
-                <input type="email" id="email" name="email" placeholder="seu.email@empresa.com" required>
+                <label for="email">E-mail</label>
+                <input type="email" name="email" id="email" required>
             </div>
-
             <div class="form-group">
-                <label for="senha">Palavra-passe</label>
-                <input type="password" id="senha" name="senha" placeholder="••••••••" required>
+                <label for="senha">Senha</label>
+                <input type="password" name="senha" id="senha" required>
             </div>
-
-            <button type="submit" class="btn-submit">Entrar no Sistema</button>
+            <button type="submit" class="btn-login">Entrar</button>
         </form>
-
-        <div class="login-footer">
-            <p>Dúvidas ou suporte? Entre em contacto com a TI.</p>
-        </div>
     </div>
-
 </body>
 </html>

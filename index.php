@@ -8,10 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
 
-    // Credenciais de teste fixas
+    // Credenciais de teste 
     if ($email === 'admin@teste.com' && $senha === '123456') {
         $_SESSION['usuario'] = 'Administrador';
-        header('Location: dashboard.php');
+        header('Location: dashboard_admin.php');
         exit();
     } else {
         $erro = 'E-mail ou senha incorretos.';

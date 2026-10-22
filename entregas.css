@@ -1,0 +1,398 @@
+/* =========================================================
+   EPISAFE - estilo do sistema (dashboard e demais telas)
+   Não use junto com index.css: aquele é só da tela de login
+   (ele centraliza o body e pinta o fundo de dourado).
+   ========================================================= */
+
+:root {
+    --ouro: #cc980a;
+    --ouro-escuro: #8f6a00;
+    --ouro-claro: #fbf1d3;
+    --grafite: #2a2f36;
+    --grafite-2: #3a414a;
+    --fundo: #eff1f4;
+    --cartao: #ffffff;
+    --linha: #dde1e7;
+    --texto: #232830;
+    --texto-suave: #667085;
+
+    --laranja: #d9730d;
+    --azul: #2f6fb3;
+    --verde: #2e8b57;
+    --vermelho: #c0392b;
+
+    --raio: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--texto);
+    background: var(--fundo);
+    min-height: 100vh;
+}
+
+a {
+    color: var(--ouro-escuro);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--ouro);
+    outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------
+   Estrutura da página (cabeçalho, menu e conteúdo)
+   Os nomes de classe abaixo são os mais prováveis do layout.php.
+   Se o seu usar outros nomes, é só trocar aqui.
+   --------------------------------------------------------- */
+
+.topbar,
+header {
+    background: var(--grafite);
+    color: #fff;
+    padding: 0 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+}
+
+.brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--ouro);
+    padding: 14px 0;
+    text-decoration: none;
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    flex: 1;
+}
+
+nav a {
+    color: #d6dae0;
+    text-decoration: none;
+    padding: 16px 12px;
+    font-size: 0.92rem;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+nav a:hover {
+    color: #fff;
+    border-bottom-color: var(--grafite-2);
+}
+
+nav a.active,
+nav a[aria-current="page"] {
+    color: #fff;
+    border-bottom-color: var(--ouro);
+}
+
+.user-area,
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: #d6dae0;
+}
+
+.user-area a,
+.usuario a {
+    color: var(--ouro);
+    font-weight: 600;
+}
+
+main,
+.container,
+.content {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 48px;
+}
+
+/* título da página: cabecalho('Dashboard', 'Visão geral...') */
+main h1,
+.container h1,
+.content h1,
+.page-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--texto);
+}
+
+.page-subtitle,
+main > p:first-of-type {
+    color: var(--texto-suave);
+    margin: 4px 0 24px;
+}
+
+/* ---------------------------------------------------------
+   Cards de indicadores
+   --------------------------------------------------------- */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    --cor: var(--ouro);
+    background: var(--cartao);
+    border: 1px solid var(--linha);
+    border-left: 6px solid var(--cor);
+    border-radius: var(--raio);
+    padding: 16px 18px;
+    display: grid;
+    gap: 2px;
+}
+
+.stat-card span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--texto-suave);
+}
+
+.stat-card strong {
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--cor);
+}
+
+.stat-card small {
+    font-size: 0.82rem;
+    color: var(--texto-suave);
+}
+
+.stat-card.orange { --cor: var(--laranja); }
+.stat-card.blue   { --cor: var(--azul); }
+.stat-card.green  { --cor: var(--verde); }
+.stat-card.red    { --cor: var(--vermelho); }
+
+/* ---------------------------------------------------------
+   Cartão de conteúdo e tabela
+   --------------------------------------------------------- */
+
+.content-card {
+    background: var(--cartao);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: 20px 22px;
+}
+
+.content-card h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--linha);
+    white-space: nowrap;
+}
+
+th {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--texto-suave);
+    background: #f7f8fa;
+    border-bottom: 2px solid var(--linha);
+}
+
+tbody tr:hover {
+    background: var(--ouro-claro);
+}
+
+/* linha "Nenhuma entrega registrada." */
+td[colspan] {
+    text-align: center;
+    color: var(--texto-suave);
+    padding: 28px 12px;
+    white-space: normal;
+}
+
+tbody tr:has(td[colspan]):hover {
+    background: transparent;
+}
+
+/* ---------------------------------------------------------
+   Responsivo
+   --------------------------------------------------------- */
+
+@media (max-width: 960px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    nav a {
+        padding: 10px 10px;
+    }
+
+    main,
+    .container,
+    .content {
+        padding: 20px 14px 40px;
+    }
+}
+
+/* =========================================================
+   Formulários, alertas e botões (entregas e demais telas)
+   ========================================================= */
+
+/* espaço entre cartões empilhados */
+.content-card + .content-card,
+.alerta + .content-card {
+    margin-top: 24px;
+}
+
+/* mensagem de sucesso / erro: <p class="alerta sucesso|erro"> */
+.alerta {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: var(--raio);
+    border: 1px solid transparent;
+    border-left-width: 6px;
+    font-size: 0.93rem;
+    font-weight: 600;
+}
+
+.alerta.sucesso {
+    background: #e7f5ec;
+    border-color: #b9e0c8;
+    border-left-color: var(--verde);
+    color: #1d5e3a;
+}
+
+.alerta.erro {
+    background: #fdeceb;
+    border-color: #f3c4bf;
+    border-left-color: var(--vermelho);
+    color: #8c2a1f;
+}
+
+/* grade do formulário: funcionário, EPI, quantidade, observação, botão */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1.4fr 0.6fr 1.6fr auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.form-grid label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--texto);
+}
+
+.form-grid input,
+.form-grid select {
+    width: 100%;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--texto);
+    background: #fff;
+    border: 1px solid #c8cdd5;
+    border-radius: 6px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-grid input::placeholder {
+    color: #98a0ac;
+}
+
+.form-grid input:hover,
+.form-grid select:hover {
+    border-color: #a6adb8;
+}
+
+.form-grid input:focus,
+.form-grid select:focus {
+    outline: none;
+    border-color: var(--ouro);
+    box-shadow: 0 0 0 3px rgba(204, 152, 10, 0.25);
+}
+
+.form-action {
+    display: flex;
+}
+
+/* botão principal */
+.botao {
+    padding: 10px 20px;
+    font: inherit;
+    font-weight: 700;
+    color: var(--grafite);
+    background: var(--ouro);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s;
+}
+
+.botao:hover {
+    background: #b58609;
+}
+
+.botao:active {
+    background: #9c7407;
+}
+
+@media (max-width: 1000px) {
+    .form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-action {
+        grid-column: 1 / -1;
+    }
+
+    .form-action .botao {
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
