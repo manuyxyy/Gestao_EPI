@@ -8,14 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
 
-    // Credenciais de teste 
-    if ($email === 'admin@teste.com' && $senha === '123456') {
-        $_SESSION['usuario'] = 'Administrador';
-        header('Location: dashboard_admin.php');
-        exit();
-    } else {
-        $erro = 'E-mail ou senha incorretos.';
-    }
 }
 ?>
 <!DOCTYPE html>
@@ -37,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form action="index.php" method="POST">
+        <form action="login.php" method="POST">
             <div class="form-group">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" name="email" required placeholder="seu@email.com">

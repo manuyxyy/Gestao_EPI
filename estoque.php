@@ -1,8 +1,22 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn
+/** @var PDO $pdo */
+
+// Itens com estoque baixo aparecem primeiro
+$linhas = buscar_todos($pdo, "
+    SELECT
+        e.id,
+        e.nome,
+        e.numero_ca AS ca,
+        s.quantidade,
+        s.quantidade_minima AS minimo
+    FROM estoque s
+    INNER JOIN epis e ON e.id = s.id_epi
+    ORDER BY (s.quantidade <= s.quantidade_minima) DESC, e.nome
+");
 
 cabecalho(
     'Controle de estoque',
@@ -18,7 +32,7 @@ cabecalho(
     <link rel="stylesheet" href="estoque.css">
 </head>
 <body>
-    
+
         <div class="content-card">
 
             <div class="card-heading">
@@ -31,11 +45,9 @@ cabecalho(
                     <thead>
                         <tr>
                             <th>EPI</th>
-                            <th>Categoria</th>
                             <th>CA</th>
                             <th>Quantidade</th>
                             <th>Estoque mínimo</th>
-                            <th>Localização</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -43,23 +55,35 @@ cabecalho(
                     <tbody>
                         <?php if (!$linhas): ?>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="5">
                                     Nenhum item de estoque cadastrado.
                                 </td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($linhas as $l): ?>
-                                <?php $baixoEstoque = (int)$l['quantidade'] <= (int)$l['minimo']; ?>
+                                <?php
+                                $qtd    = (int)$l['quantidade'];
+                                $minimo = (int)$l['minimo'];
+
+                                if ($qtd <= 0) {
+                                    $classeStatus = 'status-alerta';
+                                    $textoStatus  = 'Sem estoque';
+                                } elseif ($qtd <= $minimo) {
+                                    $classeStatus = 'status-aviso';
+                                    $textoStatus  = 'Estoque baixo';
+                                } else {
+                                    $classeStatus = 'status-ok';
+                                    $textoStatus  = 'Normal';
+                                }
+                                ?>
                                 <tr>
                                     <td><?= h($l['nome']) ?></td>
-                                    <td><?= h($l['categoria'] ?: '-') ?></td>
                                     <td><?= h($l['ca'] ?: '-') ?></td>
-                                    <td><?= h($l['quantidade']) ?></td>
-                                    <td><?= h($l['minimo']) ?></td>
-                                    <td><?= h($l['localizacao'] ?: '-') ?></td>
+                                    <td><?= h($qtd) ?></td>
+                                    <td><?= h($minimo) ?></td>
                                     <td>
-                                        <span class="status <?= $baixoEstoque ? 'status-alerta' : 'status-ok' ?>">
-                                            <?= $baixoEstoque ? 'Estoque baixo' : 'Normal' ?>
+                                        <span class="status <?= $classeStatus ?>">
+                                            <?= h($textoStatus) ?>
                                         </span>
                                     </td>
                                 </tr>

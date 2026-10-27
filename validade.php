@@ -1,8 +1,20 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // onde está o buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn
+/** @var PDO $pdo */
+
+$linhas = buscar_todos($pdo, "
+    SELECT
+        nome,
+        NULL AS categoria,
+        numero_ca AS ca,
+        validade AS validade_ca
+    FROM epis
+    WHERE validade IS NOT NULL
+    ORDER BY validade ASC
+");
 
 cabecalho(
     'Controle de validade',

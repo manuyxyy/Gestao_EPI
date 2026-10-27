@@ -1,10 +1,12 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn
+/** @var PDO $pdo */
 
 $mensagem = '';
+$tipoMensagem = 'sucesso'; // Define a classe do alerta (sucesso ou erro)
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $entregaId  = (int)($_POST['entrega_id'] ?? 0);
@@ -12,73 +14,117 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado     = trim($_POST['estado'] ?? 'Bom');
 
     try {
-        $q = $conn->prepare(
-            "SELECT funcionario_id, epi_id, quantidade
-             FROM entregas WHERE id = ?"
-        );
+        $pdo->beginTransaction();
+
+        // Busca a entrega e quanto ainda falta devolver dela
+        $q = $pdo->prepare("
+            SELECT
+                en.id_epi,
+                en.quantidade - COALESCE(
+                    (SELECT SUM(d.quantidade)
+                     FROM devolucoes d
+                     WHERE d.id_entrega = en.id), 0
+                ) AS pendente
+            FROM entregas en
+            WHERE en.id = ?
+            FOR UPDATE
+        ");
         $q->execute([$entregaId]);
         $entrega = $q->fetch();
 
-        if (!$entrega || $quantidade > (int)$entrega['quantidade']) {
+        if (!$entrega || $quantidade > (int)$entrega['pendente']) {
             throw new Exception(
                 'Confira a entrega e a quantidade informada.'
             );
         }
 
-        $conn->beginTransaction();
-
-        $ins = $conn->prepare("
+        $ins = $pdo->prepare("
             INSERT INTO devolucoes
-            (entrega_id, funcionario_id, epi_id, quantidade,
-             data_devolucao, estado, observacao)
-            VALUES (?, ?, ?, ?, CURDATE(), ?, ?)
+            (id_entrega, data_devolucao, quantidade, estado, observacao)
+            VALUES (?, CURDATE(), ?, ?, ?)
         ");
 
         $ins->execute([
             $entregaId,
-            $entrega['funcionario_id'],
-            $entrega['epi_id'],
             $quantidade,
             $estado,
             trim($_POST['observacao'] ?? '')
         ]);
 
+        // Só volta para o estoque se o EPI estiver em bom estado
         if (strtolower($estado) === 'bom') {
-            $upd = $conn->prepare(
+            $upd = $pdo->prepare(
                 "UPDATE estoque
                  SET quantidade = quantidade + ?
-                 WHERE epi_id = ?"
+                 WHERE id_epi = ?"
             );
             $upd->execute([
                 $quantidade,
-                $entrega['epi_id']
+                $entrega['id_epi']
             ]);
         }
 
-        $mov = $conn->prepare("
+        $mov = $pdo->prepare("
             INSERT INTO movimentacoes
-            (epi_id, tipo, quantidade, descricao)
-            VALUES (?, 'Devolução', ?, ?)
+            (id_epi, tipo, quantidade, observacao)
+            VALUES (?, 'Devolucao', ?, ?)
         ");
 
         $mov->execute([
-            $entrega['epi_id'],
+            $entrega['id_epi'],
             $quantidade,
             'Devolução da entrega ID ' . $entregaId .
             ' - estado: ' . $estado
         ]);
 
-        $conn->commit();
-        $mensagem = 'Devolução registrada.';
+        $pdo->commit();
+        $mensagem = 'Devolução registrada com sucesso.';
+        $tipoMensagem = 'sucesso';
 
     } catch (Throwable $e) {
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
         }
 
         $mensagem = $e->getMessage();
+        $tipoMensagem = 'erro';
     }
 }
+
+// Entregas que ainda têm unidades a devolver (a quantidade mostrada é o que falta devolver)
+$entregas = buscar_todos($pdo, "
+    SELECT
+        en.id,
+        f.nome AS funcionario,
+        p.nome AS epi,
+        en.quantidade - COALESCE(dv.devolvido, 0) AS quantidade
+    FROM entregas en
+    LEFT JOIN funcionarios f ON f.id = en.id_funcionario
+    LEFT JOIN epis p ON p.id = en.id_epi
+    LEFT JOIN (
+        SELECT id_entrega, SUM(quantidade) AS devolvido
+        FROM devolucoes
+        GROUP BY id_entrega
+    ) dv ON dv.id_entrega = en.id
+    WHERE en.quantidade - COALESCE(dv.devolvido, 0) > 0
+    ORDER BY en.id DESC
+");
+
+// Histórico de devoluções
+$linhas = buscar_todos($pdo, "
+    SELECT
+        d.data_devolucao,
+        f.nome AS funcionario,
+        p.nome AS epi,
+        d.quantidade,
+        d.estado
+    FROM devolucoes d
+    INNER JOIN entregas en ON en.id = d.id_entrega
+    LEFT JOIN funcionarios f ON f.id = en.id_funcionario
+    LEFT JOIN epis p ON p.id = en.id_epi
+    ORDER BY d.data_devolucao DESC, d.id DESC
+    LIMIT 50
+");
 
 cabecalho(
     'Devolução de EPIs',
@@ -87,7 +133,7 @@ cabecalho(
 ?>
 
 <?php if ($mensagem): ?>
-    <p class="alerta sucesso"><?= h($mensagem) ?></p>
+    <p class="alerta <?= h($tipoMensagem) ?>"><?= h($mensagem) ?></p>
 <?php endif; ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,7 +160,7 @@ cabecalho(
                                 #<?= h($e['id']) ?> -
                                 <?= h($e['funcionario']) ?> /
                                 <?= h($e['epi']) ?>
-                                (<?= h($e['quantidade']) ?>)
+                                (a devolver: <?= h($e['quantidade']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -175,7 +221,7 @@ cabecalho(
                         <?php else: ?>
                             <?php foreach ($linhas as $l): ?>
                                 <tr>
-                                    <td><?= h($l['data_devolucao']) ?></td>
+                                    <td><?= h(date('d/m/Y', strtotime($l['data_devolucao']))) ?></td>
                                     <td><?= h($l['funcionario'] ?? '-') ?></td>
                                     <td><?= h($l['epi'] ?? '-') ?></td>
                                     <td><?= h($l['quantidade']) ?></td>

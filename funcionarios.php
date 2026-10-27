@@ -1,36 +1,53 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn
+/** @var PDO $pdo */
 
 $mensagem = '';
 $tipoMensagem = 'sucesso'; // Controla a classe CSS do alerta (sucesso ou erro)
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $q = $conn->prepare("
+        $nome = trim($_POST['nome'] ?? '');
+
+        if ($nome === '') {
+            throw new Exception('Informe o nome do funcionário.');
+        }
+
+        $q = $pdo->prepare("
             INSERT INTO funcionarios
-            (nome, cpf, setor, cargo, status)
-            VALUES (?, ?, ?, ?, 'Ativo')
+            (nome, cpf, setor, cargo, email)
+            VALUES (?, ?, ?, ?, ?)
         ");
 
+        // Campos vazios viram NULL (o CPF é UNIQUE, então '' repetido daria erro)
         $q->execute([
-            trim($_POST['nome'] ?? ''),
-            trim($_POST['cpf'] ?? ''),
-            trim($_POST['setor'] ?? ''),
-            trim($_POST['cargo'] ?? '')
+            $nome,
+            trim($_POST['cpf'] ?? '')   ?: null,
+            trim($_POST['setor'] ?? '') ?: null,
+            trim($_POST['cargo'] ?? '') ?: null,
+            trim($_POST['email'] ?? '') ?: null
         ]);
 
         $mensagem = 'Funcionário cadastrado com sucesso.';
         $tipoMensagem = 'sucesso';
 
     } catch (Throwable $e) {
-        $mensagem = 'Não foi possível cadastrar. Verifique os dados.';
+        $mensagem = ($e instanceof PDOException)
+            ? 'Não foi possível cadastrar. Verifique os dados (o CPF pode já estar cadastrado).'
+            : $e->getMessage();
         $tipoMensagem = 'erro';
     }
 }
 
+// Consultado depois do POST para já mostrar o novo cadastro
+$linhas = buscar_todos($pdo, "
+    SELECT id, nome, cpf, setor, cargo, email
+    FROM funcionarios
+    ORDER BY nome
+");
 
 cabecalho(
     'Funcionários',
@@ -64,7 +81,7 @@ cabecalho(
 
                 <div>
                     <label>CPF</label>
-                    <input name="cpf">
+                    <input name="cpf" maxlength="14" placeholder="000.000.000-00">
                 </div>
 
                 <div>
@@ -75,6 +92,11 @@ cabecalho(
                 <div>
                     <label>Cargo</label>
                     <input name="cargo">
+                </div>
+
+                <div>
+                    <label>E-mail</label>
+                    <input type="email" name="email">
                 </div>
 
                 <div class="form-action">
@@ -98,7 +120,7 @@ cabecalho(
                             <th>CPF</th>
                             <th>Setor</th>
                             <th>Cargo</th>
-                            <th>Status</th>
+                            <th>E-mail</th>
                         </tr>
                     </thead>
 
@@ -116,7 +138,7 @@ cabecalho(
                                     <td><?= h($l['cpf'] ?: '-') ?></td>
                                     <td><?= h($l['setor'] ?: '-') ?></td>
                                     <td><?= h($l['cargo'] ?: '-') ?></td>
-                                    <td><?= h($l['status']) ?></td>
+                                    <td><?= h($l['email'] ?: '-') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

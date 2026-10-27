@@ -1,8 +1,38 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn
+/** @var PDO $pdo */
+
+// Indicadores
+$totalEntregas = (int)$pdo->query(
+    "SELECT COALESCE(SUM(quantidade), 0) FROM entregas"
+)->fetchColumn();
+
+$totalDevolucoes = (int)$pdo->query(
+    "SELECT COALESCE(SUM(quantidade), 0) FROM devolucoes"
+)->fetchColumn();
+
+$totalEstoque = (int)$pdo->query(
+    "SELECT COALESCE(SUM(quantidade), 0) FROM estoque"
+)->fetchColumn();
+
+$totalVencidos = (int)$pdo->query(
+    "SELECT COUNT(*) FROM epis
+     WHERE validade IS NOT NULL AND validade < CURDATE()"
+)->fetchColumn();
+
+// Entregas agrupadas por tipo de EPI
+$porEpi = buscar_todos($pdo, "
+    SELECT
+        p.nome,
+        SUM(en.quantidade) AS total
+    FROM entregas en
+    INNER JOIN epis p ON p.id = en.id_epi
+    GROUP BY p.id, p.nome
+    ORDER BY total DESC, p.nome
+");
 
 cabecalho(
     'Relatórios e indicadores',
@@ -23,22 +53,22 @@ cabecalho(
 
             <article class="stat-card orange">
                 <span>Unidades entregues</span>
-                <strong><?= h("Entregas") ?></strong>
+                <strong><?= h($totalEntregas) ?></strong>
             </article>
 
             <article class="stat-card yellow">
                 <span>Unidades devolvidas</span>
-                <strong><?= h("Devoluções") ?></strong>
+                <strong><?= h($totalDevolucoes) ?></strong>
             </article>
 
             <article class="stat-card pale">
                 <span>Unidades em estoque</span>
-                <strong><?= h("Estoque") ?></strong>
+                <strong><?= h($totalEstoque) ?></strong>
             </article>
 
             <article class="stat-card warning">
                 <span>EPIs com validade vencida</span>
-                <strong><?= h("Validade") ?></strong>
+                <strong><?= h($totalVencidos) ?></strong>
             </article>
 
         </div>

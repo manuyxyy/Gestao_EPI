@@ -1,8 +1,22 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn (substitua por mysqli se aplicável)
+/** @var PDO $pdo */
+
+$linhas = buscar_todos($pdo, "
+    SELECT
+        m.data_movimentacao,
+        m.tipo,
+        e.nome AS epi,
+        m.quantidade,
+        m.observacao AS descricao
+    FROM movimentacoes m
+    LEFT JOIN epis e ON e.id = m.id_epi
+    ORDER BY m.data_movimentacao DESC, m.id DESC
+    LIMIT 200
+");
 
 cabecalho(
     'Movimentações',
@@ -40,11 +54,11 @@ cabecalho(
                         <?php else: ?>
                             <?php foreach ($linhas as $linha): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($linha['data_movimentacao']) ?></td>
-                                    <td><?= htmlspecialchars($linha['tipo']) ?></td>
-                                    <td><?= htmlspecialchars($linha['epi'] ?? '-') ?></td>
-                                    <td><?= htmlspecialchars($linha['quantidade']) ?></td>
-                                    <td><?= htmlspecialchars($linha['descricao'] ?? '') ?></td>
+                                    <td><?= h(date('d/m/Y H:i', strtotime($linha['data_movimentacao']))) ?></td>
+                                    <td><?= h($linha['tipo']) ?></td>
+                                    <td><?= h($linha['epi'] ?? '-') ?></td>
+                                    <td><?= h($linha['quantidade']) ?></td>
+                                    <td><?= h($linha['descricao'] ?? '') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -52,6 +66,7 @@ cabecalho(
                 </table>
             </div>
         </div>
-        
+
 </body>
 </html>
+<?php rodape(); ?>

@@ -1,8 +1,9 @@
 <?php
 require_once 'conexao.php';
+require_once 'funcoes.php';   // buscar_todos()
 require_once 'layout.php';
 
-/** @var PDO $conn */ // Informa o editor sobre a origem da variável $conn
+/** @var PDO $pdo */
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -17,11 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $quantidade  = max(1, (int)($_POST['quantidade'] ?? 1));
 
     try {
-        $conn->beginTransaction();
+        if ($funcionario <= 0 || $epi <= 0) {
+            throw new Exception('Selecione o funcionário e o EPI.');
+        }
 
-        $q = $conn->prepare(
+        $pdo->beginTransaction();
+
+        // Trava a linha do estoque enquanto confere o saldo
+        $q = $pdo->prepare(
             "SELECT quantidade FROM estoque
-             WHERE epi_id = ? FOR UPDATE"
+             WHERE id_epi = ? FOR UPDATE"
         );
         $q->execute([$epi]);
         $saldo = $q->fetchColumn();
@@ -32,32 +38,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         }
 
-        $ins = $conn->prepare("
+        $ins = $pdo->prepare("
             INSERT INTO entregas
-            (funcionario_id, epi_id, quantidade,
-             data_entrega, responsavel, observacao)
-            VALUES (?, ?, ?, CURDATE(), ?, ?)
+            (id_funcionario, id_epi, id_usuario, quantidade,
+             data_entrega, observacao)
+            VALUES (?, ?, ?, ?, CURDATE(), ?)
         ");
 
         $ins->execute([
             $funcionario,
             $epi,
+            $_SESSION['usuario_id'] ?? null,
             $quantidade,
-            $_SESSION['usuario'] ?? 'Sistema',
             trim($_POST['observacao'] ?? '')
         ]);
 
-        $upd = $conn->prepare(
+        $upd = $pdo->prepare(
             "UPDATE estoque
              SET quantidade = quantidade - ?
-             WHERE epi_id = ?"
+             WHERE id_epi = ?"
         );
         $upd->execute([$quantidade, $epi]);
 
-        $mov = $conn->prepare("
+        $mov = $pdo->prepare("
             INSERT INTO movimentacoes
-            (epi_id, tipo, quantidade, descricao)
-            VALUES (?, 'Entrega', ?, ?)
+            (id_epi, tipo, quantidade, observacao)
+            VALUES (?, 'Saida', ?, ?)
         ");
 
         $mov->execute([
@@ -66,19 +72,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'Entrega para funcionário ID ' . $funcionario
         ]);
 
-        $conn->commit();
+        $pdo->commit();
         $mensagem = 'Entrega registrada com sucesso.';
         $tipoMensagem = 'sucesso';
 
     } catch (Throwable $e) {
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
         }
 
         $mensagem = $e->getMessage();
         $tipoMensagem = 'erro';
     }
 }
+
+// Listas usadas na tela (consultadas depois do POST para refletir o estoque atualizado)
+$funcionarios = buscar_todos($pdo, "
+    SELECT id, nome
+    FROM funcionarios
+    ORDER BY nome
+");
+
+$epis = buscar_todos($pdo, "
+    SELECT e.id, e.nome, COALESCE(s.quantidade, 0) AS quantidade
+    FROM epis e
+    LEFT JOIN estoque s ON s.id_epi = e.id
+    ORDER BY e.nome
+");
+
+$linhas = buscar_todos($pdo, "
+    SELECT
+        en.data_entrega,
+        f.nome AS funcionario,
+        p.nome AS epi,
+        en.quantidade
+    FROM entregas en
+    LEFT JOIN funcionarios f ON f.id = en.id_funcionario
+    LEFT JOIN epis p ON p.id = en.id_epi
+    ORDER BY en.data_entrega DESC, en.id DESC
+    LIMIT 50
+");
 
 cabecalho(
     'Entregas de EPIs',
@@ -175,7 +208,7 @@ cabecalho(
                         <?php else: ?>
                             <?php foreach ($linhas as $l): ?>
                                 <tr>
-                                    <td><?= h($l['data_entrega']) ?></td>
+                                    <td><?= h(date('d/m/Y', strtotime($l['data_entrega']))) ?></td>
                                     <td><?= h($l['funcionario'] ?? '-') ?></td>
                                     <td><?= h($l['epi'] ?? '-') ?></td>
                                     <td><?= h($l['quantidade']) ?></td>
