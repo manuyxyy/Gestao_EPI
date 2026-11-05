@@ -53,27 +53,30 @@ function icone(string $nome, int $tamanho = 18): string
         . 'stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="' . $d . '"/></svg>';
 }
 
-/** Itens do menu: arquivo => [rótulo, ícone, perfis permitidos (vazio = todos)] */
+/**
+ * Itens do menu: arquivo => [rótulo, ícone].
+ * A visibilidade é definida pelas permissões do perfil (auth.php).
+ */
 function menu_do_sistema(): array
 {
     return [
         'Visão geral' => [
-            'dashboard_admin.php' => ['Painel', 'inicio', []],
+            'dashboard_admin.php' => ['Painel', 'inicio'],
         ],
         'Operação' => [
-            'entregas.php'      => ['Entregas', 'entregas', []],
-            'devolucoes.php'    => ['Devoluções', 'devolucoes', []],
-            'movimentacoes.php' => ['Movimentações', 'movimentacoes', []],
+            'entregas.php'      => ['Entregas', 'entregas'],
+            'devolucoes.php'    => ['Devoluções', 'devolucoes'],
+            'movimentacoes.php' => ['Movimentações', 'movimentacoes'],
         ],
         'Cadastros' => [
-            'epis.php'         => ['EPIs', 'epis', []],
-            'funcionarios.php' => ['Funcionários', 'funcionarios', []],
-            'estoque.php'      => ['Estoque', 'estoque', []],
-            'usuarios.php'     => ['Usuários', 'usuarios', ['Administrador']],
+            'epis.php'         => ['EPIs', 'epis'],
+            'funcionarios.php' => ['Funcionários', 'funcionarios'],
+            'estoque.php'      => ['Estoque', 'estoque'],
+            'usuarios.php'     => ['Usuários', 'usuarios'],
         ],
         'Controle' => [
-            'validade.php'   => ['Validade dos CAs', 'validade', []],
-            'relatorios.php' => ['Relatórios', 'relatorios', []],
+            'validade.php'   => ['Validade dos CAs', 'validade'],
+            'relatorios.php' => ['Relatórios', 'relatorios'],
         ],
     ];
 }
@@ -111,7 +114,7 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
 
     /* ---------- Barra superior ---------- */
     echo '<header class="topbar"><div class="topbar-inner">';
-    echo '<a class="brand" href="dashboard_admin.php" aria-label="EpiSafe — página inicial">';
+    echo '<a class="brand" href="' . h(pagina_inicial()) . '" aria-label="EpiSafe — página inicial">';
     echo '<span class="brand-mark">' . icone('epis', 24) . '</span>';
     echo '<span class="brand-text"><span class="brand-name">Epi<span>Safe</span></span>';
     echo '<span class="brand-sub">Gestão de Equipamentos de Proteção</span></span>';
@@ -138,7 +141,9 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     if (e_admin()) {
         echo '<a role="menuitem" href="usuarios.php">' . icone('usuarios', 17) . ' Gerenciar usuários</a>';
     }
-    echo '<a role="menuitem" href="relatorios.php">' . icone('relatorios', 17) . ' Relatórios</a>';
+    if (perfil_pode_acessar('relatorios.php', $perfil)) {
+        echo '<a role="menuitem" href="relatorios.php">' . icone('relatorios', 17) . ' Relatórios</a>';
+    }
     echo '<form method="POST" action="logout.php" class="logout-form">' . csrf_campo();
     echo '<button type="submit" role="menuitem" class="logout-link">' . icone('sair', 17) . ' Sair do sistema</button>';
     echo '</form>';
@@ -151,8 +156,7 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     foreach ($grupos as $nomeGrupo => $links) {
         $visiveis = [];
         foreach ($links as $arquivo => $info) {
-            $permitidos = $info[2] ?? [];
-            if (!$permitidos || in_array($perfil, $permitidos, true)) {
+            if (perfil_pode_acessar($arquivo, $perfil)) {
                 $visiveis[$arquivo] = $info;
             }
         }

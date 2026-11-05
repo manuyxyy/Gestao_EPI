@@ -548,6 +548,85 @@ body.home-body {
     }
 }
 
+/* ------------------------------------------------ Cadastro */
+.login-card.cadastro-card {
+    max-width: 520px;
+}
+
+.login-form .form-group > input,
+.login-form .form-group > select {
+    width: 100%;
+    padding: 11px 14px;
+    font: inherit;
+    font-size: 14.5px;
+    color: var(--tinta);
+    background: #fff;
+    border: 1px solid #b9c4d0;
+    border-radius: 6px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.login-form .form-group > input::placeholder {
+    color: #8a97a6;
+}
+
+.login-form .form-group > input:focus,
+.login-form .form-group > select:focus {
+    outline: none;
+    border-color: var(--marca-600);
+    box-shadow: 0 0 0 3px rgba(245, 168, 0, 0.25);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.form-row .form-group {
+    margin-bottom: 17px;
+}
+
+.form-group .obrigatorio {
+    color: var(--vermelho);
+    margin-left: 2px;
+}
+
+.field-help {
+    margin: 5px 0 0;
+    color: #7b8998;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.senha-ajuda {
+    margin: -4px 0 18px;
+}
+
+.login-alert.success {
+    background: var(--verde-bg);
+    color: #17653f;
+    border-color: #a9d6bf;
+    border-left-color: var(--verde);
+}
+
+.login-link {
+    color: var(--marca-700);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     * {
         transition: none !important;

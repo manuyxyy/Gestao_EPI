@@ -67,6 +67,16 @@ BEGIN
         ALTER TABLE estoque DROP INDEX id_epi;
         ALTER TABLE estoque ADD UNIQUE KEY uq_estoque_epi (id_epi);
     END IF;
+
+    -- Perfis antigos: "Tecnico" passa a ser "Almoxarifado".
+    UPDATE usuarios
+       SET tipo_acesso = 'Almoxarifado', funcao = 'Almoxarifado'
+     WHERE tipo_acesso = 'Tecnico';
+
+    -- Mantém somente os três perfis usados pelo sistema.
+    ALTER TABLE usuarios
+        MODIFY COLUMN tipo_acesso ENUM('Administrador', 'Almoxarifado', 'Gestor')
+        NOT NULL DEFAULT 'Almoxarifado';
 END$$
 DELIMITER ;
 

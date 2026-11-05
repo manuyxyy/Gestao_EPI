@@ -63,7 +63,11 @@ $acoes = '';
 if (e_admin()) {
     $acoes .= '<a class="botao botao-sec" href="usuarios.php">' . icone('usuarios', 17) . ' Usuários</a>';
 }
-$acoes .= '<a class="botao" href="entregas.php">' . icone('mais', 17) . ' Nova entrega</a>';
+if (perfil_pode_acessar('entregas.php')) {
+    $acoes .= '<a class="botao" href="entregas.php">' . icone('mais', 17) . ' Nova entrega</a>';
+} elseif (perfil_pode_acessar('relatorios.php')) {
+    $acoes .= '<a class="botao" href="relatorios.php">' . icone('relatorios', 17) . ' Ver relatórios</a>';
+}
 
 cabecalho(
     'Painel de controle',
@@ -125,41 +129,6 @@ cabecalho(
             <small>Com acesso liberado</small>
         </article>
     <?php endif; ?>
-</div>
-
-<!-- Atalhos -->
-<div class="content-card">
-    <div class="card-heading">
-        <div>
-            <h2>Ações rápidas</h2>
-            <p class="card-sub">As tarefas mais usadas do dia a dia.</p>
-        </div>
-    </div>
-
-    <div class="quick-grid">
-        <a class="quick-card" href="entregas.php">
-            <span class="stat-icon"><?= icone('entregas', 19) ?></span>
-            <span><strong>Registrar entrega</strong><small>Baixa automática no estoque</small></span>
-        </a>
-        <a class="quick-card" href="devolucoes.php">
-            <span class="stat-icon"><?= icone('devolucoes', 19) ?></span>
-            <span><strong>Registrar devolução</strong><small>Retorno de equipamentos</small></span>
-        </a>
-        <a class="quick-card" href="estoque.php">
-            <span class="stat-icon"><?= icone('estoque', 19) ?></span>
-            <span><strong>Conferir estoque</strong><small>Quantidades e limites</small></span>
-        </a>
-        <a class="quick-card" href="validade.php">
-            <span class="stat-icon"><?= icone('validade', 19) ?></span>
-            <span><strong>Validar CAs</strong><small>Vencimentos e alertas</small></span>
-        </a>
-        <?php if (e_admin()): ?>
-            <a class="quick-card" href="usuarios.php">
-                <span class="stat-icon"><?= icone('usuarios', 19) ?></span>
-                <span><strong>Gerenciar usuários</strong><small>Criar e revisar acessos</small></span>
-            </a>
-        <?php endif; ?>
-    </div>
 </div>
 
 <div class="dashboard-grid">

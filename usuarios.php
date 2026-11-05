@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nome       = trim((string)($_POST['nome'] ?? ''));
             $email      = mb_strtolower(trim((string)($_POST['email'] ?? '')));
             $senha      = (string)($_POST['senha'] ?? '');
-            $tipoAcesso = (string)($_POST['tipo_acesso'] ?? 'Tecnico');
+            $tipoAcesso = (string)($_POST['tipo_acesso'] ?? 'Almoxarifado');
             $setor      = trim((string)($_POST['setor'] ?? ''));
             $telefone   = trim((string)($_POST['telefone'] ?? ''));
             $status     = (string)($_POST['status'] ?? 'Ativo');
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nome       = trim((string)($_POST['nome'] ?? ''));
             $email      = mb_strtolower(trim((string)($_POST['email'] ?? '')));
             $senha      = (string)($_POST['senha'] ?? '');
-            $tipoAcesso = (string)($_POST['tipo_acesso'] ?? 'Tecnico');
+            $tipoAcesso = (string)($_POST['tipo_acesso'] ?? 'Almoxarifado');
             $setor      = trim((string)($_POST['setor'] ?? ''));
             $telefone   = trim((string)($_POST['telefone'] ?? ''));
             $status     = (string)($_POST['status'] ?? 'Ativo');
@@ -490,12 +490,16 @@ cabecalho(
                 <label for="tipo_acesso">Perfil de acesso <span class="obrigatorio">*</span></label>
                 <select id="tipo_acesso" name="tipo_acesso" required>
                     <?php foreach (perfis_validos() as $perfil): ?>
-                        <option value="<?= h($perfil) ?>" <?= $perfil === 'Tecnico' ? 'selected' : '' ?>>
+                        <option value="<?= h($perfil) ?>" <?= $perfil === 'Almoxarifado' ? 'selected' : '' ?>>
                             <?= h(rotulo_perfil($perfil)) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <p class="ajuda">Administrador gerencia usuários e todo o sistema.</p>
+                <p class="ajuda">
+                    Administrador acessa todas as páginas e gerencia usuários.
+                    Gestor acessa relatórios e cadastros. Almoxarifado cuida de estoque,
+                    entregas e devoluções.
+                </p>
             </div>
 
             <div>

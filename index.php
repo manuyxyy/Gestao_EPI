@@ -4,9 +4,9 @@
  */
 require_once __DIR__ . '/auth.php';
 
-// Usuário já autenticado vai direto para o painel.
+// Usuário já autenticado vai direto para a página inicial do seu perfil.
 if (usuario_logado()) {
-    redirecionar('dashboard_admin.php');
+    redirecionar(pagina_inicial());
 }
 
 $erro          = '';
@@ -44,7 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $bloqueio === 0) {
                     ]);
                 }
 
-                redirecionar('dashboard_admin.php?boas_vindas=1');
+                $destino = pagina_inicial();
+
+                if ($destino === 'dashboard_admin.php') {
+                    $destino .= '?boas_vindas=1';
+                }
+
+                redirecionar($destino);
             }
 
             $erro     = $mensagem;
@@ -62,6 +68,14 @@ if ($avisoParam === 'logout') {
     $aviso = 'Você saiu do sistema com segurança.';
 } elseif ($avisoParam === 'sessao' || $avisoParam === 'login') {
     $aviso = 'Sua sessão terminou. Entre novamente para continuar.';
+} elseif ($avisoParam === 'cadastro') {
+    $aviso = (string)($_SESSION['cadastro_sucesso'] ?? 'Cadastro realizado com sucesso. Entre com o seu e-mail e senha.');
+    unset($_SESSION['cadastro_sucesso']);
+
+    if (!empty($_SESSION['cadastro_email'])) {
+        $email = (string)$_SESSION['cadastro_email'];
+        unset($_SESSION['cadastro_email']);
+    }
 } elseif ($erroParam === 'acesso_negado') {
     $erro = 'Seu perfil não tem permissão para acessar essa página.';
 }
@@ -129,7 +143,7 @@ if ($bloqueio > 0) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                              stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
                     </span>
-                    <span><strong>Perfis de acesso</strong><small>Administrador, gestor, almoxarifado e técnico.</small></span>
+                    <span><strong>Perfis de acesso</strong><small>Administrador, gestor e almoxarifado, cada um com as suas páginas.</small></span>
                 </li>
             </ul>
         </div>
@@ -153,7 +167,7 @@ if ($bloqueio > 0) {
                     </svg>
                 </span>
                 <h2>Acessar o sistema</h2>
-                <p>Entre com o e-mail e a senha cadastrados pelo administrador.</p>
+                <p>Entre com o e-mail e a senha da sua conta. Cada perfil vai direto para as suas páginas.</p>
             </header>
 
             <?php if ($aviso !== ''): ?>
@@ -232,7 +246,8 @@ if ($bloqueio > 0) {
             </form>
 
             <p class="login-foot">
-                Não tem acesso? Fale com o administrador responsável pelo sistema.
+                Ainda não tem cadastro?
+                <a class="login-link" href="cadastro.php">Criar uma conta</a>
             </p>
 
             <div class="login-security">

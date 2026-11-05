@@ -50,22 +50,25 @@ function h($valor): string
 
 function perfis_validos(): array
 {
-    return ['Administrador', 'Gestor', 'Almoxarifado', 'Tecnico'];
+    return ['Administrador', 'Gestor', 'Almoxarifado'];
 }
 
 /**
  * Converte qualquer variação gravada no banco (antiga ou nova) em um dos
- * perfis canônicos: Administrador, Gestor, Almoxarifado ou Tecnico.
+ * perfis canônicos: Administrador, Gestor ou Almoxarifado.
+ *
+ * Perfis antigos ("Tecnico" / "Funcionario") são tratados como Almoxarifado
+ * para que continuem funcionando sem precisar recriar o usuário.
  */
 function normalizar_perfil(?string $valor): string
 {
     $v = mb_strtolower(trim((string)$valor));
 
     return match (true) {
-        in_array($v, ['administrador', 'admin', 'adm'], true) => 'Administrador',
-        in_array($v, ['gestor', 'gerente'], true)             => 'Gestor',
-        in_array($v, ['almoxarifado', 'almoxarife'], true)    => 'Almoxarifado',
-        default                                               => 'Tecnico',
+        in_array($v, ['administrador', 'admin', 'adm'], true)              => 'Administrador',
+        in_array($v, ['gestor', 'gerente'], true)                          => 'Gestor',
+        in_array($v, ['almoxarifado', 'almoxarife', 'tecnico', 'técnico'], true) => 'Almoxarifado',
+        default                                                            => 'Almoxarifado',
     };
 }
 
@@ -74,8 +77,7 @@ function rotulo_perfil(?string $perfil): string
     return match (normalizar_perfil($perfil)) {
         'Administrador' => 'Administrador',
         'Gestor'        => 'Gestor',
-        'Almoxarifado'  => 'Almoxarifado',
-        default         => 'Técnico',
+        default         => 'Almoxarifado',
     };
 }
 
@@ -131,6 +133,89 @@ function e_admin(): bool
 }
 
 /* -------------------------------------------------------------------------
+ * Permissões por página
+ * ---------------------------------------------------------------------- */
+
+/** Todas as páginas internas do sistema. */
+function paginas_do_sistema(): array
+{
+    return [
+        'dashboard_admin.php',
+        'entregas.php',
+        'devolucoes.php',
+        'movimentacoes.php',
+        'epis.php',
+        'funcionarios.php',
+        'estoque.php',
+        'usuarios.php',
+        'validade.php',
+        'relatorios.php',
+        'perfil.php',
+    ];
+}
+
+/**
+ * Páginas que cada perfil pode abrir.
+ *
+ * O administrador acessa tudo. Os demais perfis têm acesso apenas às
+ * rotinas que realmente usam — isso evita erros e alterações indevidas.
+ */
+function paginas_por_perfil(?string $perfil = null): array
+{
+    $perfil = normalizar_perfil($perfil ?? perfil_atual());
+
+    return match ($perfil) {
+        'Administrador' => paginas_do_sistema(),
+        'Gestor' => [
+            'dashboard_admin.php',
+            'epis.php',
+            'funcionarios.php',
+            'validade.php',
+            'relatorios.php',
+            'perfil.php',
+        ],
+        default => [ // Almoxarifado
+            'dashboard_admin.php',
+            'entregas.php',
+            'devolucoes.php',
+            'movimentacoes.php',
+            'epis.php',
+            'funcionarios.php',
+            'estoque.php',
+            'validade.php',
+            'perfil.php',
+        ],
+    };
+}
+
+function perfil_pode_acessar(string $pagina, ?string $perfil = null): bool
+{
+    $pagina = basename($pagina);
+
+    if ($pagina === '') {
+        return true;
+    }
+
+    // Páginas novas/desconhecidas ficam restritas ao administrador até serem
+    // incluídas explicitamente na matriz de permissões.
+    if (!in_array($pagina, paginas_do_sistema(), true)) {
+        return normalizar_perfil($perfil ?? perfil_atual()) === 'Administrador';
+    }
+
+    return in_array($pagina, paginas_por_perfil($perfil), true);
+}
+
+/** Página inicial de cada perfil, usada após o login. */
+function pagina_inicial(?string $perfil = null): string
+{
+    return match (normalizar_perfil($perfil ?? perfil_atual())) {
+        'Administrador' => 'dashboard_admin.php',
+        'Gestor'        => 'relatorios.php',
+        default         => 'estoque.php',
+    };
+}
+
+/* -------------------------------------------------------------------------
  * Redirecionamento e proteção de páginas
  * ---------------------------------------------------------------------- */
 
@@ -153,41 +238,47 @@ function exigir_login(): void
 
     static $validado = false;
 
-    if ($validado) {
-        return;
+    if (!$validado) {
+        global $pdo;
+
+        try {
+            $stmt = $pdo->prepare(
+                "SELECT id, nome, email, tipo_acesso, funcao, setor, status
+                   FROM usuarios
+                  WHERE id = ?
+                  LIMIT 1"
+            );
+            $stmt->execute([usuario_id()]);
+            $u = $stmt->fetch();
+        } catch (Throwable $e) {
+            error_log('Falha ao validar sessão: ' . $e->getMessage());
+            $u = null;
+        }
+
+        if (!$u || !status_ativo($u['status'] ?? 'Ativo')) {
+            encerrar_sessao();
+            flash('erro', 'Sua sessão expirou ou a conta foi desativada. Entre novamente.');
+            redirecionar('index.php?aviso=sessao');
+        }
+
+        // Mantém a sessão sincronizada com o banco.
+        $_SESSION['usuario_nome']   = $u['nome'];
+        $_SESSION['usuario_email']  = $u['email'];
+        $_SESSION['usuario_setor']  = $u['setor'] ?? '';
+        $_SESSION['usuario_perfil'] = normalizar_perfil($u['tipo_acesso'] ?? $u['funcao'] ?? null);
+        $_SESSION['usuario_funcao'] = $u['funcao'] ?? $_SESSION['usuario_perfil'];
+        $_SESSION['perfil']         = $_SESSION['usuario_perfil'];
+
+        $validado = true;
     }
 
-    global $pdo;
+    // Bloqueia páginas que não pertencem ao perfil do usuário.
+    $pagina = basename((string)($_SERVER['PHP_SELF'] ?? ''));
 
-    try {
-        $stmt = $pdo->prepare(
-            "SELECT id, nome, email, tipo_acesso, funcao, setor, status
-               FROM usuarios
-              WHERE id = ?
-              LIMIT 1"
-        );
-        $stmt->execute([usuario_id()]);
-        $u = $stmt->fetch();
-    } catch (Throwable $e) {
-        error_log('Falha ao validar sessão: ' . $e->getMessage());
-        $u = null;
+    if (!perfil_pode_acessar($pagina)) {
+        flash('erro', 'Seu perfil não tem permissão para acessar essa página.');
+        redirecionar(pagina_inicial());
     }
-
-    if (!$u || !status_ativo($u['status'] ?? 'Ativo')) {
-        encerrar_sessao();
-        flash('erro', 'Sua sessão expirou ou a conta foi desativada. Entre novamente.');
-        redirecionar('index.php?aviso=sessao');
-    }
-
-    // Mantém a sessão sincronizada com o banco.
-    $_SESSION['usuario_nome']   = $u['nome'];
-    $_SESSION['usuario_email']  = $u['email'];
-    $_SESSION['usuario_setor']  = $u['setor'] ?? '';
-    $_SESSION['usuario_perfil'] = normalizar_perfil($u['tipo_acesso'] ?? $u['funcao'] ?? null);
-    $_SESSION['usuario_funcao'] = $u['funcao'] ?? $_SESSION['usuario_perfil'];
-    $_SESSION['perfil']         = $_SESSION['usuario_perfil'];
-
-    $validado = true;
 }
 
 function exigir_perfil(array $perfisPermitidos): void
@@ -199,7 +290,7 @@ function exigir_perfil(array $perfisPermitidos): void
     if (!in_array(perfil_atual(), $permitidos, true)) {
         http_response_code(403);
         flash('erro', 'Você não tem permissão para acessar essa página.');
-        redirecionar('dashboard_admin.php');
+        redirecionar(pagina_inicial());
     }
 }
 

@@ -1,19 +1,24 @@
 
 PROJETO EPISAFE - PHP E MYSQL
 
-1. Coloque a pasta episafe_php dentro de htdocs.
+1. Coloque a pasta Gestao_EPI dentro de htdocs.
 2. Inicie o Apache e o MySQL no XAMPP.
 3. Abra http://localhost/phpmyadmin
-4. Importe o arquivo banco.sql.
+4. Importe o arquivo gestao_epis.sql (instalação nova) ou execute
+   atualizar_banco.sql (sistema já instalado).
 5. Confira os dados de conexão em conexao.php.
-6. Cadastre o primeiro administrador no banco.
-7. Acesse http://localhost/episafe_php/index.php
+6. Acesse http://localhost:8080/Gestao_EPI/index.php
 
-O login usa a tabela usuarios.
-Os perfis disponíveis são:
-- administrador
-- gestor
-- funcionario
-- almoxarifado
+Fluxo de acesso:
+- Em "Criar uma conta" o usuário faz o cadastro, que é salvo na tabela usuarios.
+- Os perfis disponíveis são: Administrador, Gestor e Almoxarifado.
+- O login redireciona direto para a página principal do perfil:
+  Administrador -> Painel; Gestor -> Relatórios; Almoxarifado -> Estoque.
+- O Administrador acessa todas as páginas. Os demais perfis acessam
+  somente as páginas da sua rotina.
 
-A senha deve ser armazenada com password_hash().
+Acesso inicial do administrador:
+- E-mail: admin@episafe.local
+- Senha:  Admin@12345  (troque em Meu perfil)
+
+As senhas são armazenadas com password_hash().

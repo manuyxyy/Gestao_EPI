@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nome          VARCHAR(100) NOT NULL,
     email         VARCHAR(100) NOT NULL,
     senha         VARCHAR(255) NOT NULL,
-    tipo_acesso   ENUM('Administrador', 'Tecnico', 'Almoxarifado', 'Gestor')
-                  NOT NULL DEFAULT 'Tecnico',
+    tipo_acesso   ENUM('Administrador', 'Almoxarifado', 'Gestor')
+                  NOT NULL DEFAULT 'Almoxarifado',
     funcao        VARCHAR(20) NOT NULL,
     setor         VARCHAR(100) DEFAULT NULL,
     telefone      VARCHAR(20) DEFAULT NULL,
