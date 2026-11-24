@@ -91,6 +91,8 @@ if ($bloqueio > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1d2127">
+    <link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">
+    <link rel="apple-touch-icon" href="assets/logo-episafe.svg">
     <meta name="description" content="EpiSafe — sistema de gestão de Equipamentos de Proteção Individual.">
     <title>EpiSafe | Gestão de EPIs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">

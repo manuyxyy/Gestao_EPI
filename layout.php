@@ -44,6 +44,7 @@ function icone(string $nome, int $tamanho = 18): string
         'olho-off'      => 'M3 3l18 18 M10.6 10.6a2 2 0 0 0 2.8 2.8 M9.9 5.2A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17.9 17.9 0 0 1-3.2 4.1 M6.6 6.6A17.6 17.6 0 0 0 2 12s3.5 7 10 7a10.6 10.6 0 0 0 4.4-.9',
         'refresh'       => 'M23 4v6h-6 M1 20v-6h6 M3.5 9a9 9 0 0 1 14.9-3.4L23 10 M1 14l4.6 4.4A9 9 0 0 0 20.5 15',
         'sino'          => 'M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9 M13.7 21a2 2 0 0 1-3.4 0',
+        'suporte'       => 'M4 13v-2a8 8 0 0 1 16 0v2 M4 13h3v6H5a1 1 0 0 1-1-1v-5z M20 13h-3v6h2a1 1 0 0 0 1-1v-5z M20 20a4 4 0 0 1-4 4h-3',
     ];
 
     $d = $caminhos[$nome] ?? '';
@@ -78,6 +79,9 @@ function menu_do_sistema(): array
             'validade.php'   => ['Validade dos CAs', 'validade'],
             'relatorios.php' => ['Relatórios', 'relatorios'],
         ],
+        'Ajuda' => [
+            'suporte.php' => ['Suporte', 'suporte'],
+        ],
     ];
 }
 
@@ -102,6 +106,8 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     echo '<meta charset="UTF-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
     echo '<meta name="theme-color" content="#1d2127">';
+    echo '<link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">';
+    echo '<link rel="apple-touch-icon" href="assets/logo-episafe.svg">';
     echo '<title>' . h($titulo) . ' | EpiSafe</title>';
     echo '<link rel="preconnect" href="https://fonts.googleapis.com">';
     echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
@@ -144,6 +150,7 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     if (perfil_pode_acessar('relatorios.php', $perfil)) {
         echo '<a role="menuitem" href="relatorios.php">' . icone('relatorios', 17) . ' Relatórios</a>';
     }
+    echo '<a role="menuitem" href="suporte.php">' . icone('suporte', 17) . ' Suporte</a>';
     echo '<form method="POST" action="logout.php" class="logout-form">' . csrf_campo();
     echo '<button type="submit" role="menuitem" class="logout-link">' . icone('sair', 17) . ' Sair do sistema</button>';
     echo '</form>';
@@ -770,6 +777,23 @@ a{color:var(--marca-600)}
     color:var(--suave);font-size:13px;
 }
 .inline-note.success{background:var(--verde-bg);border-color:#a9d6bf;color:#17653f}
+
+/* ---------- Suporte ---------- */
+.contato-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.contato-card{
+    display:flex;align-items:flex-start;gap:13px;
+    padding:16px;border:1px solid var(--linha);border-radius:var(--raio-sm);background:#fbfcfd;
+}
+.contato-card strong{display:block;font-size:14px;line-height:1.3}
+.contato-card p{margin:2px 0 0;color:var(--suave);font-size:13.5px;overflow-wrap:anywhere}
+.faq-lista{display:grid;gap:10px}
+.faq-item{border:1px solid var(--linha);border-radius:var(--raio-sm);background:#fbfcfd;overflow:hidden}
+.faq-item summary{
+    cursor:pointer;padding:13px 15px;font-weight:600;font-size:14.5px;color:var(--tinta);
+}
+.faq-item summary:hover{background:var(--marca-50)}
+.faq-item summary:focus-visible{outline:3px solid var(--marca-600);outline-offset:-3px}
+.faq-item p{margin:0;padding:0 15px 15px;color:var(--suave);font-size:14px;max-width:80ch}
 
 /* ---------- Estado vazio ---------- */
 .empty-state{

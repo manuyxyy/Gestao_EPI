@@ -30,6 +30,7 @@ try {
 
     exit(
         '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+        . '<link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">'
         . '<title>Erro de conexão</title></head>'
         . '<body style="font-family:Segoe UI,Arial,sans-serif;background:#eceff3;'
         . 'display:grid;place-items:center;min-height:100vh;margin:0">'

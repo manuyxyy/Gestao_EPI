@@ -16,6 +16,10 @@ Fluxo de acesso:
   Administrador -> Painel; Gestor -> Relatórios; Almoxarifado -> Estoque.
 - O Administrador acessa todas as páginas. Os demais perfis acessam
   somente as páginas da sua rotina.
+- A aba Funcionários aparece apenas para o Administrador.
+- A aba Suporte fica disponível para todos os perfis (contatos e perguntas
+  frequentes). Edite suporte.php para alterar os dados de contato.
+- O logotipo EpiSafe aparece na aba do navegador (favicon) em todas as telas.
 
 Acesso inicial do administrador:
 - E-mail: admin@episafe.local

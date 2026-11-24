@@ -217,7 +217,11 @@ cabecalho(
             <span class="empty-icon"><?= icone('funcionarios', 24) ?></span>
             <strong>Nenhum funcionário cadastrado</strong>
             <p>Cadastre um funcionário antes de registrar entregas.</p>
-            <a class="botao botao-sm" href="funcionarios.php">Cadastrar funcionário</a>
+            <?php if (perfil_pode_acessar('funcionarios.php')): ?>
+                <a class="botao botao-sm" href="funcionarios.php">Cadastrar funcionário</a>
+            <?php else: ?>
+                <p class="ajuda">Solicite o cadastro ao administrador do sistema.</p>
+            <?php endif; ?>
         </div>
     <?php elseif (!$epis): ?>
         <div class="empty-state compact">

@@ -151,6 +151,7 @@ function paginas_do_sistema(): array
         'validade.php',
         'relatorios.php',
         'perfil.php',
+        'suporte.php',
     ];
 }
 
@@ -169,10 +170,10 @@ function paginas_por_perfil(?string $perfil = null): array
         'Gestor' => [
             'dashboard_admin.php',
             'epis.php',
-            'funcionarios.php',
             'validade.php',
             'relatorios.php',
             'perfil.php',
+            'suporte.php',
         ],
         default => [ // Almoxarifado
             'dashboard_admin.php',
@@ -180,10 +181,10 @@ function paginas_por_perfil(?string $perfil = null): array
             'devolucoes.php',
             'movimentacoes.php',
             'epis.php',
-            'funcionarios.php',
             'estoque.php',
             'validade.php',
             'perfil.php',
+            'suporte.php',
         ],
     };
 }
