@@ -3,6 +3,7 @@
  * Página inicial / login do EpiSafe.
  */
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/acessibilidade.php';
 
 // Usuário já autenticado vai direto para a página inicial do seu perfil.
 if (usuario_logado()) {
@@ -86,11 +87,11 @@ if ($bloqueio > 0) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="acess-alto-contraste acess-sem-movimento">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1d2127">
+    <meta name="theme-color" content="#05070a">
     <link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">
     <link rel="apple-touch-icon" href="assets/logo-episafe.svg">
     <meta name="description" content="EpiSafe — sistema de gestão de Equipamentos de Proteção Individual.">
@@ -99,78 +100,31 @@ if ($bloqueio > 0) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="index.css">
+    <script><?= acessibilidade_script_inicial() ?></script>
+    <link rel="stylesheet" href="acessibilidade.css">
+    <script src="acessibilidade.js" defer></script>
 </head>
 <body class="home-body">
 
-<div class="home-wrap">
+<?= ferramentas_acessibilidade() ?>
+<a class="skip-link" href="#form-login">Pular para o formulário de acesso</a>
 
-    <!-- ------------------------------------------------ Marca (esquerda) -->
-    <section class="home-brand" aria-labelledby="marca-titulo">
-        <div class="home-brand-top">
-            <span class="home-logo" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/>
-                    <path d="M9 12l2 2 4-4"/>
-                </svg>
-            </span>
-            <div class="home-brand-name">Epi<span>Safe</span></div>
-        </div>
-
-        <div class="home-brand-copy">
-            <p class="home-eyebrow">Segurança do trabalho, sem planilhas</p>
-            <h1 id="marca-titulo">Controle os EPIs da sua equipe em um só lugar.</h1>
-            <p class="home-lead">
-                Entregas, devoluções, estoque, validade dos CAs e usuários — tudo
-                registrado e auditável, do cadastro à devolução.
-            </p>
-
-            <ul class="home-features">
-                <li>
-                    <span class="home-feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>
-                    </span>
-                    <span><strong>Entregas e devoluções</strong><small>Baixa automática do estoque e histórico completo.</small></span>
-                </li>
-                <li>
-                    <span class="home-feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/><path d="M12 7v5l3 2"/></svg>
-                    </span>
-                    <span><strong>Validade dos CAs</strong><small>Alerta de certificados vencidos ou perto do vencimento.</small></span>
-                </li>
-                <li>
-                    <span class="home-feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-                    </span>
-                    <span><strong>Perfis de acesso</strong><small>Administrador, gestor e almoxarifado, cada um com as suas páginas.</small></span>
-                </li>
-            </ul>
-        </div>
-
-        <footer class="home-brand-foot">
-            <span>Ambiente interno · Gestão de EPIs</span>
-            <span>&copy; <?= date('Y') ?> EpiSafe</span>
-        </footer>
-    </section>
-
-    <!-- ------------------------------------------------ Login (direita) -->
-    <main class="home-login">
-        <div class="login-card">
-            <header class="login-head">
-                <span class="login-head-badge" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <path d="M16 17l5-5-5-5"/>
-                        <path d="M21 12H9"/>
+<main class="login-page">
+    <div class="login-card">
+        <header class="login-head">
+            <a class="login-logo" href="index.php" aria-label="EpiSafe — página inicial">
+                <span class="login-logo-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/>
+                        <path d="M9 12l2 2 4-4"/>
                     </svg>
                 </span>
-                <h2>Acessar o sistema</h2>
-                <p>Entre com o e-mail e a senha da sua conta. Cada perfil vai direto para as suas páginas.</p>
-            </header>
+                <span>Epi<span>Safe</span></span>
+            </a>
+            <h1>Acessar o sistema</h1>
+            <p>Entre com seu e-mail e senha para continuar.</p>
+        </header>
 
             <?php if ($aviso !== ''): ?>
                 <div class="login-alert info" role="status">
@@ -184,7 +138,7 @@ if ($bloqueio > 0) {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="index.php" class="login-form" autocomplete="on" novalidate>
+            <form method="POST" action="index.php" class="login-form" id="form-login" tabindex="-1" autocomplete="on" novalidate>
                 <?= csrf_campo() ?>
 
                 <div class="form-group">
@@ -259,10 +213,8 @@ if ($bloqueio > 0) {
                 </svg>
                 <span>Conexão protegida · senhas criptografadas</span>
             </div>
-        </div>
-    </main>
-
-</div>
+    </div>
+</main>
 
 <script>
 (function () {

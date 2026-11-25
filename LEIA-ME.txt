@@ -16,13 +16,43 @@ Fluxo de acesso:
   Administrador -> Painel; Gestor -> Relatórios; Almoxarifado -> Estoque.
 - O Administrador acessa todas as páginas. Os demais perfis acessam
   somente as páginas da sua rotina.
-- A aba Funcionários aparece apenas para o Administrador.
-- A aba Suporte fica disponível para todos os perfis (contatos e perguntas
+- O item Funcionários no menu lateral aparece apenas para o Administrador.
+- O item Suporte fica disponível para todos os perfis (contatos e perguntas
   frequentes). Edite suporte.php para alterar os dados de contato.
 - O logotipo EpiSafe aparece na aba do navegador (favicon) em todas as telas.
+
+LAYOUT E NAVEGAÇÃO
+- Login e cadastro são telas minimalistas: um cartão centralizado, sem a
+  coluna de apresentação e sem informações extras.
+- Nas telas internas os atalhos ficam no menu lateral esquerdo, agrupados
+  por área. A página atual fica destacada.
+- Em telas pequenas (até 980px), o botão no topo abre/fecha o menu lateral;
+  Esc também fecha o menu e devolve o foco ao botão.
+- Relatórios trazem gráficos de linha (últimos 6 meses), rosca (setores) e
+  barras (EPIs), todos com descrição para leitores de tela.
 
 Acesso inicial do administrador:
 - E-mail: admin@episafe.local
 - Senha:  Admin@12345  (troque em Meu perfil)
 
 As senhas são armazenadas com password_hash().
+
+ACESSIBILIDADE (todas as telas)
+- O sistema abre em alto contraste: fundo escuro, texto claro, foco amarelo
+  e alvos de clique maiores. É possível voltar ao tema claro no painel.
+- Botão "Acessibilidade" (canto inferior direito) abre o painel com:
+  * A- / A+ (texto e tela de 100% a 200%);
+  * alto contraste ligado/desligado;
+  * sublinhar todos os links;
+  * reduzir animações;
+  * "Ler esta página" (síntese de voz do navegador, em português).
+- As preferências ficam salvas no navegador e valem para login, cadastro
+  e telas internas.
+- Atalhos: Alt+A abre/fecha o painel; Alt+L inicia/interrompe a leitura;
+  Esc fecha o painel (ou o menu lateral) e devolve o foco ao botão.
+- Navegação por teclado: Tab percorre links e campos, setas funcionam no
+  menu do usuário, Enter/Espaço ordena colunas de tabela. Há links para
+  pular direto ao conteúdo/formulário e às ferramentas de acessibilidade.
+- Leitores de tela recebem rótulos nos ícones, cabeçalhos de tabela,
+  anúncios de erros/avisos e atualizações de filtros/ordenação.
+

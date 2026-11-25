@@ -1,6 +1,7 @@
 /* =========================================================
-   EpiSafe — página inicial / login
-   Layout de duas colunas: marca à esquerda, login à direita.
+   EpiSafe — login e cadastro
+   Layout minimalista: um cartão centralizado, sem coluna
+   promocional e sem informações desnecessárias.
    ========================================================= */
 
 :root {
@@ -12,11 +13,11 @@
     --marca-100: #ffe7b3;
     --marca-50: #fff7e6;
 
-    --papel: #f4f1ea;
+    --papel: #f4f6f9;
     --branco: #ffffff;
     --tinta: #1d2127;
     --suave: #5c636d;
-    --linha: #e0dbd1;
+    --linha: #dfe4ea;
 
     --verde: #1f7a52;
     --verde-bg: #e2f3ea;
@@ -44,220 +45,94 @@ body.home-body {
     font-size: 15px;
     line-height: 1.55;
     color: var(--tinta);
-    background: var(--papel);
+    background:
+        radial-gradient(70% 50% at 50% -10%, rgba(245, 168, 0, 0.12), transparent 70%),
+        var(--papel);
     -webkit-font-smoothing: antialiased;
 }
 
-.home-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    min-height: 100vh;
-}
-
-/* ------------------------------------------------ Marca (esquerda) */
-.home-brand {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 40px 56px 30px;
-    color: #ffffff;
-    background:
-        radial-gradient(90% 70% at 85% 10%, rgba(245, 168, 0, 0.28), transparent 60%),
-        radial-gradient(70% 60% at 10% 95%, rgba(224, 124, 31, 0.18), transparent 60%),
-        linear-gradient(150deg, #1d2127 0%, #2a3038 55%, #14171b 100%);
-    overflow: hidden;
-}
-
-/* textura discreta de "placa de sinalização" */
-.home-brand::after {
-    content: "";
+/* Link de pulo (mesmo comportamento das telas internas). */
+.skip-link {
     position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-    background-size: 46px 46px;
-    mask-image: radial-gradient(80% 70% at 70% 30%, #000 0%, transparent 75%);
-    pointer-events: none;
-}
-
-.home-brand-top,
-.home-brand-copy,
-.home-brand-foot {
-    position: relative;
-    z-index: 1;
-}
-
-.home-brand-top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.home-logo {
-    display: grid;
-    place-items: center;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: var(--marca-500);
-    border: 2px solid rgba(255, 255, 255, 0.92);
-    box-shadow: 0 0 0 4px rgba(245, 168, 0, 0.35);
+    left: 12px;
+    top: -60px;
+    z-index: 100;
+    padding: 10px 16px;
+    border-radius: 6px;
+    background: var(--branco);
     color: var(--marca-900);
+    border: 2px solid var(--marca-500);
+    font-weight: 600;
+    text-decoration: none;
 }
 
-.home-logo svg {
-    width: 28px;
-    height: 28px;
+.skip-link:focus {
+    top: 12px;
 }
 
-.home-brand-name {
-    font-family: var(--fonte-titulo);
-    font-size: 30px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
-}
-
-.home-brand-name span {
-    color: #ffc247;
-}
-
-.home-brand-copy {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-width: 560px;
-    padding: 48px 0 36px;
-}
-
-.home-eyebrow {
-    margin: 0 0 14px;
-    color: #ffc247;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-.home-brand-copy h1 {
-    margin: 0 0 16px;
-    font-family: var(--fonte-titulo);
-    font-size: clamp(30px, 3.1vw, 44px);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.025em;
-}
-
-.home-lead {
-    margin: 0 0 30px;
-    max-width: 48ch;
-    color: #cfd6de;
-    font-size: 16px;
-    line-height: 1.65;
-}
-
-.home-features {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 16px;
-}
-
-.home-features li {
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
-}
-
-.home-feature-icon {
+/* ------------------------------------------------ Cartão centralizado */
+.login-page {
+    min-height: 100vh;
     display: grid;
     place-items: center;
-    flex: none;
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    color: #ffc247;
-}
-
-.home-feature-icon svg {
-    width: 20px;
-    height: 20px;
-}
-
-.home-features strong {
-    display: block;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.home-features small {
-    display: block;
-    color: #aeb7c1;
-    font-size: 13.5px;
-    line-height: 1.45;
-}
-
-.home-brand-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    padding-top: 22px;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    color: #a3acb6;
-    font-size: 12.5px;
-}
-
-/* ------------------------------------------------ Login (direita) */
-.home-login {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 32px;
-    background:
-        radial-gradient(80% 60% at 100% 0%, rgba(217, 143, 0, 0.12), transparent 60%),
-        var(--papel);
+    padding: 32px 20px;
 }
 
 .login-card {
     width: 100%;
-    max-width: 430px;
-    padding: 34px 36px 28px;
+    max-width: 420px;
+    padding: 36px 34px 30px;
     background: var(--branco);
     border: 1px solid var(--linha);
-    border-top: 4px solid var(--marca-500);
-    border-radius: 10px;
-    box-shadow:
-        0 1px 2px rgba(29, 33, 39, 0.05),
-        0 24px 48px -24px rgba(29, 33, 39, 0.35);
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(29, 33, 39, 0.04), 0 24px 60px -30px rgba(29, 33, 39, 0.35);
+}
+
+.login-card.cadastro-card {
+    max-width: 560px;
 }
 
 .login-head {
     margin-bottom: 24px;
 }
 
-.login-head-badge {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    margin-bottom: 14px;
-    border-radius: 12px;
-    background: var(--marca-50);
-    color: var(--marca-700);
-    border: 1px solid var(--marca-100);
+.login-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 26px;
+    color: var(--marca-900);
+    font-family: var(--fonte-titulo);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration: none;
 }
 
+.login-logo > span span {
+    color: var(--marca-600);
+}
+
+.login-logo-mark {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--marca-500);
+    color: var(--marca-900);
+}
+
+.login-logo-mark svg {
+    width: 23px;
+    height: 23px;
+}
+
+.login-head h1,
 .login-head h2 {
     margin: 0 0 6px;
     font-family: var(--fonte-titulo);
-    font-size: 26px;
+    font-size: 25px;
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.02em;
@@ -270,12 +145,13 @@ body.home-body {
     font-size: 14px;
 }
 
+/* ------------------------------------------------ Avisos */
 .login-alert {
     display: flex;
     gap: 10px;
     margin: 0 0 20px;
     padding: 11px 14px;
-    border-radius: 5px;
+    border-radius: 6px;
     border: 1px solid;
     border-left-width: 5px;
     font-size: 13.5px;
@@ -297,6 +173,14 @@ body.home-body {
     border-left-color: var(--marca-500);
 }
 
+.login-alert.success {
+    background: var(--verde-bg);
+    color: #17653f;
+    border-color: #a9d6bf;
+    border-left-color: var(--verde);
+}
+
+/* ------------------------------------------------ Formulários */
 .form-group {
     margin-bottom: 17px;
 }
@@ -307,6 +191,11 @@ body.home-body {
     color: var(--tinta);
     font-size: 13.5px;
     font-weight: 600;
+}
+
+.form-group .obrigatorio {
+    color: var(--vermelho);
+    margin-left: 2px;
 }
 
 .label-row {
@@ -337,9 +226,11 @@ body.home-body {
     pointer-events: none;
 }
 
-.input-icon input {
+.input-icon input,
+.login-form .form-group > input,
+.login-form .form-group > select {
     width: 100%;
-    padding: 11px 14px 11px 41px;
+    padding: 11px 14px;
     font: inherit;
     font-size: 14.5px;
     color: var(--tinta);
@@ -349,11 +240,18 @@ body.home-body {
     transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.input-icon input::placeholder {
+.input-icon input {
+    padding-left: 41px;
+}
+
+.input-icon input::placeholder,
+.login-form .form-group > input::placeholder {
     color: #8a97a6;
 }
 
-.input-icon input:focus {
+.input-icon input:focus,
+.login-form .form-group > input:focus,
+.login-form .form-group > select:focus {
     outline: none;
     border-color: var(--marca-600);
     box-shadow: 0 0 0 3px rgba(245, 168, 0, 0.25);
@@ -463,120 +361,6 @@ body.home-body {
     cursor: not-allowed;
 }
 
-.login-foot {
-    margin: 18px 0 0;
-    padding-top: 16px;
-    border-top: 1px solid var(--linha);
-    color: var(--suave);
-    font-size: 12.5px;
-    text-align: center;
-    line-height: 1.5;
-}
-
-.login-security {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    margin-top: 10px;
-    color: #8a97a6;
-    font-size: 11.5px;
-}
-
-/* ------------------------------------------------ Responsivo */
-@media (max-width: 980px) {
-    .home-wrap {
-        grid-template-columns: 1fr;
-    }
-
-    .home-brand {
-        padding: 26px 28px 30px;
-    }
-
-    .home-brand-copy {
-        display: none;
-    }
-
-    .home-brand-foot {
-        margin-top: 22px;
-        padding-top: 16px;
-    }
-
-    .home-login {
-        padding: 34px 20px 48px;
-    }
-}
-
-@media (max-width: 520px) {
-    .home-brand {
-        padding: 20px 20px 22px;
-    }
-
-    .home-logo {
-        width: 46px;
-        height: 46px;
-    }
-
-    .home-brand-name {
-        font-size: 25px;
-    }
-
-    .home-brand-foot {
-        display: none;
-    }
-
-    .home-brand-copy {
-        display: block;
-        padding: 24px 0 4px;
-    }
-
-    .home-brand-copy h1 {
-        font-size: 25px;
-    }
-
-    .home-lead,
-    .home-features {
-        display: none;
-    }
-
-    .home-login {
-        padding: 22px 14px 36px;
-    }
-
-    .login-card {
-        padding: 26px 22px 22px;
-    }
-}
-
-/* ------------------------------------------------ Cadastro */
-.login-card.cadastro-card {
-    max-width: 520px;
-}
-
-.login-form .form-group > input,
-.login-form .form-group > select {
-    width: 100%;
-    padding: 11px 14px;
-    font: inherit;
-    font-size: 14.5px;
-    color: var(--tinta);
-    background: #fff;
-    border: 1px solid #b9c4d0;
-    border-radius: 6px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.login-form .form-group > input::placeholder {
-    color: #8a97a6;
-}
-
-.login-form .form-group > input:focus,
-.login-form .form-group > select:focus {
-    outline: none;
-    border-color: var(--marca-600);
-    box-shadow: 0 0 0 3px rgba(245, 168, 0, 0.25);
-}
-
 .form-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -585,11 +369,6 @@ body.home-body {
 
 .form-row .form-group {
     margin-bottom: 17px;
-}
-
-.form-group .obrigatorio {
-    color: var(--vermelho);
-    margin-left: 2px;
 }
 
 .field-help {
@@ -603,11 +382,14 @@ body.home-body {
     margin: -4px 0 18px;
 }
 
-.login-alert.success {
-    background: var(--verde-bg);
-    color: #17653f;
-    border-color: #a9d6bf;
-    border-left-color: var(--verde);
+.login-foot {
+    margin: 18px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--linha);
+    color: var(--suave);
+    font-size: 12.5px;
+    text-align: center;
+    line-height: 1.5;
 }
 
 .login-link {
@@ -620,7 +402,26 @@ body.home-body {
     text-decoration: underline;
 }
 
+.login-security {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 10px;
+    color: #8a97a6;
+    font-size: 11.5px;
+}
+
+/* ------------------------------------------------ Responsivo */
 @media (max-width: 560px) {
+    .login-page {
+        padding: 20px 14px 28px;
+    }
+
+    .login-card {
+        padding: 28px 22px 24px;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
         gap: 0;

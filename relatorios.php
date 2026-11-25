@@ -2,6 +2,7 @@
 require_once 'conexao.php';
 require_once 'funcoes.php';
 require_once __DIR__ . '/layout.php';
+require_once __DIR__ . '/graficos.php';
 
 /** @var PDO $pdo */
 
@@ -76,6 +77,38 @@ $estoqueCritico = buscar_todos($pdo, "
     ORDER BY s.quantidade ASC, e.nome
 ");
 
+/* Evolução dos últimos 6 meses (meses sem entrega viram zero). */
+$entregasPorMes = buscar_todos($pdo, "
+    SELECT DATE_FORMAT(data_entrega, '%Y-%m') AS chave, SUM(quantidade) AS valor
+    FROM entregas
+    WHERE data_entrega >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH)
+    GROUP BY chave
+    ORDER BY chave
+");
+$mapaMeses = [];
+foreach ($entregasPorMes as $linha) {
+    $mapaMeses[$linha['chave']] = (int)$linha['valor'];
+}
+$porMes = [];
+for ($i = 5; $i >= 0; $i--) {
+    $dataMes = new DateTime('first day of -' . $i . ' month');
+    $chaveMes = $dataMes->format('Y-m');
+    $porMes[] = [
+        'rotulo' => $dataMes->format('m/y'),
+        'valor'  => $mapaMeses[$chaveMes] ?? 0,
+    ];
+}
+
+/* Dados formatados para os gráficos. */
+$dadosGraficoEpi = [];
+foreach ($porEpi as $linha) {
+    $dadosGraficoEpi[] = ['rotulo' => $linha['nome'], 'valor' => (int)$linha['total']];
+}
+$dadosGraficoSetor = [];
+foreach ($porSetor as $linha) {
+    $dadosGraficoSetor[] = ['rotulo' => $linha['setor'], 'valor' => (int)$linha['total']];
+}
+
 cabecalho(
     'Relatórios e indicadores',
     'Consolidado de entregas, devoluções, estoque e validade',
@@ -121,8 +154,37 @@ cabecalho(
     </article>
 </div>
 
+<!-- ------------------------------------------------ Gráficos -->
 <div class="dashboard-grid">
-    <!-- Entregas por EPI -->
+    <div class="content-card">
+        <div class="card-heading">
+            <div>
+                <h2>Entregas nos últimos 6 meses</h2>
+                <p class="card-sub">Unidades entregues mês a mês.</p>
+            </div>
+        </div>
+        <?= grafico_linha($porMes, 'Entregas nos últimos 6 meses') ?>
+    </div>
+
+    <div class="content-card">
+        <div class="card-heading">
+            <div>
+                <h2>Distribuição por setor</h2>
+                <p class="card-sub">Participação de cada área nas entregas.</p>
+            </div>
+        </div>
+        <?php if (!$porSetor): ?>
+            <div class="empty-state compact">
+                <strong>Sem dados por setor</strong>
+                <p>Informe o setor dos funcionários para visualizar.</p>
+            </div>
+        <?php else: ?>
+            <?= grafico_rosca($dadosGraficoSetor, 'Distribuição das entregas por setor') ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Entregas por EPI -->
     <div class="content-card">
         <div class="card-heading">
             <div>
@@ -137,74 +199,12 @@ cabecalho(
                 <p>Registre entregas para gerar este relatório.</p>
             </div>
         <?php else: ?>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>EPI</th>
-                            <th class="num">Registros</th>
-                            <th class="num">Unidades</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($porEpi as $l): ?>
-                            <tr>
-                                <td><?= h($l['nome']) ?></td>
-                                <td class="num"><?= (int)$l['registros'] ?></td>
-                                <td class="num"><strong><?= (int)$l['total'] ?></strong></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td>Total</td>
-                            <td class="num"><?= $registrosEntrega ?></td>
-                            <td class="num"><?= $totalEntregas ?></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+            <?= grafico_barras($dadosGraficoEpi, 'Unidades entregues por EPI') ?>
+            <p class="inline-note" style="margin-top:16px">
+                Total: <strong><?= $totalEntregas ?> unidades</strong> em <?= $registrosEntrega ?> registro(s).
+            </p>
         <?php endif; ?>
     </div>
-
-    <!-- Entregas por setor -->
-    <div class="content-card">
-        <div class="card-heading">
-            <div>
-                <h2>Entregas por setor</h2>
-                <p class="card-sub">Distribuição por área da empresa.</p>
-            </div>
-        </div>
-
-        <?php if (!$porSetor): ?>
-            <div class="empty-state compact">
-                <strong>Sem dados por setor</strong>
-                <p>Informe o setor dos funcionários para visualizar.</p>
-            </div>
-        <?php else: ?>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Setor</th>
-                            <th class="num">Registros</th>
-                            <th class="num">Unidades</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($porSetor as $l): ?>
-                            <tr>
-                                <td><?= h($l['setor']) ?></td>
-                                <td class="num"><?= (int)$l['registros'] ?></td>
-                                <td class="num"><strong><?= (int)$l['total'] ?></strong></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
 
 <div class="dashboard-grid">
     <!-- Top funcionários -->

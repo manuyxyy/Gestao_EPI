@@ -1,0 +1,610 @@
+/* =========================================================
+   EpiSafe — acessibilidade e alto contraste
+   Carregado por layout.php, index.php e cadastro.php.
+   ========================================================= */
+
+:root {
+    --acess-zoom: 1;
+    --acess-foco: #ffd400;
+    --acess-fundo: #080b10;
+    --acess-superficie: #121821;
+    --acess-texto: #f7f9fc;
+    --acess-borda: #8592a3;
+    --acess-link: #ffd400;
+}
+
+/* Escala toda a interface (inclusive textos definidos em px). */
+html {
+    zoom: var(--acess-zoom, 1);
+}
+
+/* ---------------------------------------------------------
+   Tema de alto contraste (padrão)
+   --------------------------------------------------------- */
+
+html.acess-alto-contraste {
+    color-scheme: dark;
+
+    --marca-900: #05070a;
+    --marca-800: #121821;
+    --marca-700: #ffd400;
+    --marca-600: #ffd400;
+    --marca-500: #ffd400;
+    --marca-100: #4d4100;
+    --marca-50: #211b04;
+
+    --papel: #080b10;
+    --branco: #121821;
+    --tinta: #f7f9fc;
+    --tinta-2: #e7ecf3;
+    --suave: #c7d1de;
+    --suave-2: #aab6c5;
+    --linha: #667385;
+    --linha-forte: #9fabbc;
+
+    --verde: #74e0a8;
+    --verde-bg: #0d2a1d;
+    --amarelo: #ffd400;
+    --amarelo-bg: #2c2503;
+    --laranja: #ffb36b;
+    --laranja-bg: #2e1908;
+    --vermelho: #ff8f85;
+    --vermelho-bg: #2f100e;
+
+    --sombra: none;
+}
+
+html.acess-alto-contraste body.app-body,
+html.acess-alto-contraste body.home-body {
+    background: var(--papel);
+    color: var(--tinta);
+}
+
+html.acess-alto-contraste a {
+    color: var(--acess-link);
+}
+
+html.acess-alto-contraste .page-heading h1,
+html.acess-alto-contraste .content-card h2,
+html.acess-alto-contraste .card-heading h2,
+html.acess-alto-contraste .login-head h1,
+html.acess-alto-contraste .empty-state strong,
+html.acess-alto-contraste .info-item dd {
+    color: #ffffff;
+}
+
+html.acess-alto-contraste .topbar,
+html.acess-alto-contraste .profile-hero,
+html.acess-alto-contraste .sidebar {
+    background: #05070a;
+}
+
+html.acess-alto-contraste .sidebar {
+    border-right-color: var(--acess-link);
+}
+
+html.acess-alto-contraste .nav-group-titulo,
+html.acess-alto-contraste .sidebar-rodape {
+    color: #c7d1de;
+}
+
+html.acess-alto-contraste .nav-link {
+    color: #f7f9fc;
+}
+
+html.acess-alto-contraste .nav-link.ativo {
+    background: #2c2503;
+    border-left-color: var(--acess-link);
+    color: var(--acess-link);
+}
+
+html.acess-alto-contraste .nav-link:hover {
+    background: #2c2503;
+    color: var(--acess-link);
+}
+
+html.acess-alto-contraste .brand-mark,
+html.acess-alto-contraste .page-badge,
+html.acess-alto-contraste .login-logo-mark {
+    color: #05070a;
+}
+
+html.acess-alto-contraste .skip-link {
+    background: #05070a;
+    color: var(--acess-link);
+    border: 2px solid var(--acess-link);
+}
+
+html.acess-alto-contraste .skip-link-conteudo:focus {
+    top: 56px;
+}
+
+html.acess-alto-contraste .skip-link-acess:focus {
+    top: 100px;
+}
+
+/* Superfícies que usavam cores fixas claras no CSS original. */
+html.acess-alto-contraste .content-card,
+html.acess-alto-contraste .stat-card,
+html.acess-alto-contraste .quick-card,
+html.acess-alto-contraste .user-dropdown,
+html.acess-alto-contraste .table-wrap,
+html.acess-alto-contraste .attention-item,
+html.acess-alto-contraste .inline-note,
+html.acess-alto-contraste .info-item,
+html.acess-alto-contraste .contato-card,
+html.acess-alto-contraste .faq-item,
+html.acess-alto-contraste .faq-item p,
+html.acess-alto-contraste .login-card,
+html.acess-alto-contraste .app-footer {
+    background: var(--acess-superficie);
+    color: var(--acess-texto);
+    border-color: var(--acess-borda);
+}
+
+html.acess-alto-contraste .table-wrap td,
+html.acess-alto-contraste .table-wrap th {
+    border-color: #667385;
+}
+
+html.acess-alto-contraste .table-wrap tbody tr:nth-child(even) td {
+    background: #0e141c;
+}
+
+html.acess-alto-contraste .table-wrap tbody tr:hover td {
+    background: #2c2503;
+}
+
+html.acess-alto-contraste .table-wrap tfoot td {
+    background: #2c2503;
+    border-top-color: var(--acess-link);
+}
+
+html.acess-alto-contraste .user-dropdown a,
+html.acess-alto-contraste .logout-link {
+    color: var(--acess-texto);
+}
+
+html.acess-alto-contraste .user-dropdown a:hover,
+html.acess-alto-contraste .logout-link:hover {
+    background: #2c2503;
+    color: var(--acess-link);
+}
+
+html.acess-alto-contraste .alerta,
+html.acess-alto-contraste .login-alert {
+    background: #121821;
+    color: #ffffff;
+    border-color: var(--acess-borda);
+}
+
+html.acess-alto-contraste .alerta.sucesso,
+html.acess-alto-contraste .login-alert.success { border-left-color: #74e0a8; }
+html.acess-alto-contraste .alerta.erro,
+html.acess-alto-contraste .login-alert.error { border-left-color: #ff8f85; }
+html.acess-alto-contraste .alerta.aviso,
+html.acess-alto-contraste .alerta.info,
+html.acess-alto-contraste .login-alert.info { border-left-color: #ffd400; }
+
+/* Campos de formulário (tanto no sistema quanto no login/cadastro). */
+html.acess-alto-contraste .form-grid input,
+html.acess-alto-contraste .form-grid select,
+html.acess-alto-contraste .form-grid textarea,
+html.acess-alto-contraste .form-stack input,
+html.acess-alto-contraste .input-icon input,
+html.acess-alto-contraste .login-form .form-group > input,
+html.acess-alto-contraste .login-form .form-group > select,
+html.acess-alto-contraste .search-box input,
+html.acess-alto-contraste .table-filter {
+    background: #080b10;
+    color: #ffffff;
+    border-color: #9fabbc;
+}
+
+html.acess-alto-contraste input::placeholder,
+html.acess-alto-contraste .form-grid input::placeholder,
+html.acess-alto-contraste .input-icon input::placeholder {
+    color: #b8c3d1;
+}
+
+html.acess-alto-contraste input:focus,
+html.acess-alto-contraste select:focus,
+html.acess-alto-contraste textarea:focus {
+    border-color: var(--acess-foco);
+    box-shadow: 0 0 0 3px rgba(255, 212, 0, 0.4);
+}
+
+html.acess-alto-contraste .field-help,
+html.acess-alto-contraste .login-help,
+html.acess-alto-contraste .senha-ajuda,
+html.acess-alto-contraste .ajuda,
+html.acess-alto-contraste .login-foot,
+html.acess-alto-contraste .login-security {
+    color: #c7d1de;
+}
+
+html.acess-alto-contraste .botao-sec,
+html.acess-alto-contraste .botao-perigo,
+html.acess-alto-contraste .profile-hero .botao-sec {
+    background: #121821;
+    color: #ffffff;
+    border-color: #9fabbc;
+}
+
+html.acess-alto-contraste .botao {
+    border-width: 2px;
+}
+
+html.acess-alto-contraste .chip,
+html.acess-alto-contraste .status {
+    border: 1px solid currentColor;
+}
+
+html.acess-alto-contraste .status-ok,
+html.acess-alto-contraste .inline-note.success {
+    background: #0d2a1d;
+    color: #74e0a8;
+}
+
+html.acess-alto-contraste .status-aviso,
+html.acess-alto-contraste .status-info {
+    background: #2c2503;
+    color: #ffd400;
+}
+
+html.acess-alto-contraste .status-alerta {
+    background: #2f100e;
+    color: #ff8f85;
+}
+
+html.acess-alto-contraste .status-neutro,
+html.acess-alto-contraste .barra-trilho {
+    background: #2a3038;
+    color: #e7ecf3;
+}
+
+html.acess-alto-contraste .perfil-administrador {
+    background: #2a2450;
+    color: #d9d2ff;
+}
+
+html.acess-alto-contraste .perfil-gestor {
+    color: #ffd400;
+}
+
+html.acess-alto-contraste .perfil-almoxarifado {
+    color: #ffb36b;
+}
+
+html.acess-alto-contraste .perfil-tecnico {
+    background: #2a3038;
+    color: #e7ecf3;
+}
+
+/* Gráficos */
+html.acess-alto-contraste .grafico-barra-rotulo,
+html.acess-alto-contraste .grafico-barra-valor,
+html.acess-alto-contraste .grafico-legenda li,
+html.acess-alto-contraste .grafico-legenda strong,
+html.acess-alto-contraste .grafico-rosca-centro strong {
+    color: #ffffff;
+}
+
+html.acess-alto-contraste .grafico-barra-trilho {
+    background: #2a3038;
+    border-color: #9fabbc;
+}
+
+html.acess-alto-contraste .grafico-barra-preenchimento {
+    background: #ffd400;
+}
+
+html.acess-alto-contraste .grafico-grade { stroke: #667385; }
+html.acess-alto-contraste .grafico-eixo { fill: #e7ecf3; }
+html.acess-alto-contraste .grafico-area { fill: #ffd400; opacity: .25; }
+html.acess-alto-contraste .grafico-linha { stroke: #ffd400; stroke-width: 3; }
+html.acess-alto-contraste .grafico-ponto { fill: #ffd400; stroke: #05070a; }
+
+html.acess-alto-contraste .grafico-rosca::after { background: #121821; }
+html.acess-alto-contraste .grafico-rosca-centro span { color: #c7d1de; }
+html.acess-alto-contraste .grafico-legenda-cor { border-color: #ffffff; }
+
+html.acess-alto-contraste .form-grid input[readonly] {
+    background: #0b1017;
+    color: #c7d1de;
+}
+
+html.acess-alto-contraste .input-icon > svg,
+html.acess-alto-contraste .toggle-senha {
+    color: #c7d1de;
+}
+
+html.acess-alto-contraste .caps-warning {
+    color: #ffd400;
+}
+
+/* Alvos de clique maiores e mais espaço entre linhas (baixa visão). */
+html.acess-alto-contraste .nav-link {
+    min-height: 52px;
+    padding: 15px 16px 12px;
+}
+
+html.acess-alto-contraste .botao,
+html.acess-alto-contraste .acoes .botao,
+html.acess-alto-contraste .table-filter {
+    min-height: 44px;
+}
+
+html.acess-alto-contraste .form-grid input,
+html.acess-alto-contraste .form-grid select,
+html.acess-alto-contraste .form-grid textarea,
+html.acess-alto-contraste .form-stack input,
+html.acess-alto-contraste .input-icon input,
+html.acess-alto-contraste .login-form .form-group > input,
+html.acess-alto-contraste .login-form .form-group > select,
+html.acess-alto-contraste .search-box input {
+    min-height: 46px;
+}
+
+html.acess-alto-contraste .table-wrap td {
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
+/* ---------------------------------------------------------
+   Foco visível reforçado (WCAG 2.4.7 / 2.4.11)
+   --------------------------------------------------------- */
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--acess-foco) !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.85) !important;
+}
+
+/* ---------------------------------------------------------
+   Utilitários
+   --------------------------------------------------------- */
+
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+html.acess-links-sublinhados a {
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+
+html.acess-sem-movimento *,
+html.acess-sem-movimento *::before,
+html.acess-sem-movimento *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* ---------------------------------------------------------
+   Botão e painel de acessibilidade
+   --------------------------------------------------------- */
+
+.acess-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 200;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 18px;
+    border: 2px solid #05070a;
+    border-radius: 30px;
+    background: #ffd400;
+    color: #05070a;
+    font: 700 14px/1 "Public Sans", "Segoe UI", Arial, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.acess-btn:hover {
+    background: #ffe680;
+}
+
+.acess-painel {
+    position: fixed;
+    right: 20px;
+    bottom: 80px;
+    z-index: 201;
+    width: min(370px, calc(100vw - 32px));
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    padding: 18px;
+    background: #121821;
+    color: #f7f9fc;
+    border: 2px solid #ffd400;
+    border-radius: 12px;
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8);
+    font: 400 14px/1.5 "Public Sans", "Segoe UI", Arial, sans-serif;
+}
+
+.acess-painel[hidden],
+.acess-parar[hidden] {
+    display: none !important;
+}
+
+.acess-painel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.acess-painel h2 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+    color: #ffffff;
+}
+
+.acess-painel-head p {
+    margin: 5px 0 0;
+    color: #c7d1de;
+    font-size: 13px;
+}
+
+.acess-fechar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    background: #05070a;
+    color: #ffd400;
+    border: 1px solid #ffd400;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.acess-controle {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #667385;
+}
+
+.acess-controle-titulo {
+    display: block;
+    margin-bottom: 9px;
+    color: #ffd400;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.acess-passos {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.acess-passos button,
+.acess-parar {
+    min-width: 56px;
+    min-height: 44px;
+    padding: 8px 12px;
+    background: #05070a;
+    color: #ffffff;
+    border: 1px solid #9fabbc;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.acess-passos button:hover,
+.acess-parar:hover {
+    border-color: #ffd400;
+    background: #2c2503;
+}
+
+.acess-passos output {
+    min-width: 68px;
+    text-align: center;
+    font-weight: 700;
+    color: #ffd400;
+}
+
+.acess-opcao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 7px;
+    padding: 8px 12px;
+    background: #05070a;
+    color: #ffffff;
+    border: 1px solid #9fabbc;
+    border-radius: 6px;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.acess-opcao:hover {
+    border-color: #ffd400;
+}
+
+.acess-opcao[aria-pressed="true"] {
+    border-color: #ffd400;
+    background: #2c2503;
+}
+
+.acess-opcao strong {
+    flex: none;
+    color: #ffd400;
+    font-size: 12px;
+}
+
+.acess-dica,
+.acess-atalhos {
+    margin: 9px 0 0;
+    color: #c7d1de;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.acess-atalhos {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #667385;
+}
+
+.acess-painel kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    border: 1px solid #9fabbc;
+    border-radius: 3px;
+    background: #05070a;
+    color: #ffffff;
+    font: inherit;
+    font-size: 11px;
+}
+
+/* ---------------------------------------------------------
+   Responsivo e impressão
+   --------------------------------------------------------- */
+
+@media (max-width: 520px) {
+    .acess-btn {
+        right: 12px;
+        bottom: 12px;
+        padding: 10px;
+    }
+
+    .acess-btn-texto {
+        display: none;
+    }
+
+    .acess-painel {
+        right: 12px;
+        bottom: 72px;
+        max-height: calc(100vh - 88px);
+    }
+}
+
+@media print {
+    .acess-btn,
+    .acess-painel,
+    .skip-link {
+        display: none !important;
+    }
+}

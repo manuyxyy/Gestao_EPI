@@ -6,6 +6,7 @@
  * cadastro o usuário é levado para a tela de login.
  */
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/acessibilidade.php';
 
 if (usuario_logado()) {
     redirecionar(pagina_inicial());
@@ -80,11 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="acess-alto-contraste acess-sem-movimento">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1d2127">
+    <meta name="theme-color" content="#05070a">
     <link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">
     <link rel="apple-touch-icon" href="assets/logo-episafe.svg">
     <meta name="description" content="Crie sua conta no EpiSafe — sistema de gestão de EPIs.">
@@ -93,79 +94,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="index.css">
+    <script><?= acessibilidade_script_inicial() ?></script>
+    <link rel="stylesheet" href="acessibilidade.css">
+    <script src="acessibilidade.js" defer></script>
 </head>
 <body class="home-body">
 
-<div class="home-wrap">
+<?= ferramentas_acessibilidade() ?>
+<a class="skip-link" href="#form-cadastro">Pular para o formulário de cadastro</a>
 
-    <!-- ------------------------------------------------ Marca (esquerda) -->
-    <section class="home-brand" aria-labelledby="marca-titulo">
-        <div class="home-brand-top">
-            <span class="home-logo" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/>
-                    <path d="M9 12l2 2 4-4"/>
-                </svg>
-            </span>
-            <div class="home-brand-name">Epi<span>Safe</span></div>
-        </div>
-
-        <div class="home-brand-copy">
-            <p class="home-eyebrow">Primeiro acesso</p>
-            <h1 id="marca-titulo">Crie sua conta e acesse só o que precisa.</h1>
-            <p class="home-lead">
-                Informe seus dados e escolha o perfil. Cada perfil abre diretamente
-                as páginas da sua rotina, sem telas desnecessárias.
-            </p>
-
-            <ul class="home-features">
-                <li>
-                    <span class="home-feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-                    </span>
-                    <span><strong>Cadastro salvo no banco</strong><small>Seus dados ficam registrados para os próximos acessos.</small></span>
-                </li>
-                <li>
-                    <span class="home-feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
-                    </span>
-                    <span><strong>Perfis de acesso</strong><small>Administrador, gestor e almoxarifado.</small></span>
-                </li>
-                <li>
-                    <span class="home-feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-                    </span>
-                    <span><strong>Login direto ao trabalho</strong><small>Sem menu de acesso rápido: você cai na sua página principal.</small></span>
-                </li>
-            </ul>
-        </div>
-
-        <footer class="home-brand-foot">
-            <span>Ambiente interno · Gestão de EPIs</span>
-            <span>&copy; <?= date('Y') ?> EpiSafe</span>
-        </footer>
-    </section>
-
-    <!-- ------------------------------------------------ Cadastro (direita) -->
-    <main class="home-login">
-        <div class="login-card cadastro-card">
-            <header class="login-head">
-                <span class="login-head-badge" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
-                        <path d="M19 8v6"/>
-                        <path d="M22 11h-6"/>
+<main class="login-page">
+    <div class="login-card cadastro-card">
+        <header class="login-head">
+            <a class="login-logo" href="index.php" aria-label="EpiSafe — página inicial">
+                <span class="login-logo-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/>
+                        <path d="M9 12l2 2 4-4"/>
                     </svg>
                 </span>
-                <h2>Criar conta</h2>
-                <p>Preencha os dados abaixo. O perfil escolhido define as páginas que você poderá acessar.</p>
-            </header>
+                <span>Epi<span>Safe</span></span>
+            </a>
+            <h1>Criar conta</h1>
+            <p>Preencha seus dados para começar a usar o sistema.</p>
+        </header>
 
             <?php if ($erro !== ''): ?>
                 <div class="login-alert error" role="alert">
@@ -173,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="cadastro.php" class="login-form cadastro-form" autocomplete="off">
+            <form method="POST" action="cadastro.php" class="login-form cadastro-form" id="form-cadastro" tabindex="-1" autocomplete="off">
                 <?= csrf_campo() ?>
 
                 <div class="form-group">
@@ -299,10 +252,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </svg>
                 <span>Conexão protegida · dados salvos no banco</span>
             </div>
-        </div>
-    </main>
-
-</div>
+    </div>
+</main>
 
 <script>
 (function () {

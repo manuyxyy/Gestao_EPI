@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/acessibilidade.php';
 
 /**
  * Ícones SVG (traço) usados no sistema.
@@ -45,6 +46,7 @@ function icone(string $nome, int $tamanho = 18): string
         'refresh'       => 'M23 4v6h-6 M1 20v-6h6 M3.5 9a9 9 0 0 1 14.9-3.4L23 10 M1 14l4.6 4.4A9 9 0 0 0 20.5 15',
         'sino'          => 'M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9 M13.7 21a2 2 0 0 1-3.4 0',
         'suporte'       => 'M4 13v-2a8 8 0 0 1 16 0v2 M4 13h3v6H5a1 1 0 0 1-1-1v-5z M20 13h-3v6h2a1 1 0 0 0 1-1v-5z M20 20a4 4 0 0 1-4 4h-3',
+        'menu'          => 'M4 6h16 M4 12h16 M4 18h16',
     ];
 
     $d = $caminhos[$nome] ?? '';
@@ -102,10 +104,10 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
         }
     }
 
-    echo '<!DOCTYPE html><html lang="pt-BR"><head>';
+    echo '<!DOCTYPE html><html lang="pt-BR" class="acess-alto-contraste acess-sem-movimento"><head>';
     echo '<meta charset="UTF-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
-    echo '<meta name="theme-color" content="#1d2127">';
+    echo '<meta name="theme-color" content="#05070a">';
     echo '<link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">';
     echo '<link rel="apple-touch-icon" href="assets/logo-episafe.svg">';
     echo '<title>' . h($titulo) . ' | EpiSafe</title>';
@@ -113,18 +115,62 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
     echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">';
     echo '<style>' . estilo_base() . '</style>';
+    echo '<script>' . acessibilidade_script_inicial() . '</script>';
+    echo '<link rel="stylesheet" href="acessibilidade.css">';
+    echo '<script src="acessibilidade.js" defer></script>';
     echo '</head><body class="app-body">';
 
-    echo '<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>';
-    echo '<div class="app-shell">';
+    echo ferramentas_acessibilidade();
+    echo '<a class="skip-link" href="#menu-lateral">Pular para o menu</a>';
+    echo '<a class="skip-link skip-link-conteudo" href="#conteudo">Pular para o conteúdo</a>';
+    echo '<div class="app-shell" data-app-shell>';
+
+    /* ---------- Menu lateral ---------- */
+    echo '<aside class="sidebar" id="menu-lateral" aria-label="Barra lateral do sistema">';
+    echo '<div class="sidebar-top">';
+    echo '<a class="brand" href="' . h(pagina_inicial()) . '" aria-label="EpiSafe — página inicial">';
+    echo '<span class="brand-mark">' . icone('epis', 22) . '</span>';
+    echo '<span class="brand-text"><span class="brand-name">Epi<span>Safe</span></span>';
+    echo '<span class="brand-sub">Gestão de EPIs</span></span>';
+    echo '</a>';
+    echo '<button type="button" class="sidebar-fechar" data-menu-fechar aria-label="Fechar menu">' . icone('x', 18) . '</button>';
+    echo '</div>';
+
+    echo '<nav class="menu" aria-label="Menu principal"><div class="menu-inner">';
+    foreach ($grupos as $nomeGrupo => $links) {
+        $visiveis = [];
+        foreach ($links as $arquivo => $info) {
+            if (perfil_pode_acessar($arquivo, $perfil)) {
+                $visiveis[$arquivo] = $info;
+            }
+        }
+
+        if (!$visiveis) {
+            continue;
+        }
+
+        echo '<div class="nav-group" role="group" aria-label="' . h($nomeGrupo) . '">';
+        echo '<span class="nav-group-titulo" aria-hidden="true">' . h($nomeGrupo) . '</span>';
+        foreach ($visiveis as $arquivo => $info) {
+            $ativo = ($pagina === $arquivo) ? ' ativo' : '';
+            $aria  = ($pagina === $arquivo) ? ' aria-current="page"' : '';
+
+            echo '<a class="nav-link' . $ativo . '" href="' . h($arquivo) . '"' . $aria . '>';
+            echo '<span class="nav-icon">' . icone($info[1], 18) . '</span>';
+            echo '<span>' . h($info[0]) . '</span>';
+            echo '</a>';
+        }
+        echo '</div>';
+    }
+    echo '</div></nav>';
+
+    echo '<div class="sidebar-rodape"><span>EpiSafe</span><span>&copy; ' . date('Y') . '</span></div>';
+    echo '</aside>';
+    echo '<div class="sidebar-overlay" data-menu-overlay hidden></div>';
 
     /* ---------- Barra superior ---------- */
     echo '<header class="topbar"><div class="topbar-inner">';
-    echo '<a class="brand" href="' . h(pagina_inicial()) . '" aria-label="EpiSafe — página inicial">';
-    echo '<span class="brand-mark">' . icone('epis', 24) . '</span>';
-    echo '<span class="brand-text"><span class="brand-name">Epi<span>Safe</span></span>';
-    echo '<span class="brand-sub">Gestão de Equipamentos de Proteção</span></span>';
-    echo '</a>';
+    echo '<button type="button" class="menu-toggle" data-menu-abrir aria-controls="menu-lateral" aria-expanded="false" aria-label="Abrir menu lateral">' . icone('menu', 20) . '</button>';
 
     echo '<div class="topbar-right">';
     echo '<span class="topbar-date">' . icone('calendario', 15) . ' ' . date('d/m/Y') . '</span>';
@@ -157,34 +203,6 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     echo '</div></div>';
 
     echo '</div></div></header>';
-
-    /* ---------- Menu ---------- */
-    echo '<nav class="menu" aria-label="Menu principal"><div class="menu-inner">';
-    foreach ($grupos as $nomeGrupo => $links) {
-        $visiveis = [];
-        foreach ($links as $arquivo => $info) {
-            if (perfil_pode_acessar($arquivo, $perfil)) {
-                $visiveis[$arquivo] = $info;
-            }
-        }
-
-        if (!$visiveis) {
-            continue;
-        }
-
-        echo '<div class="nav-group" role="group" aria-label="' . h($nomeGrupo) . '">';
-        foreach ($visiveis as $arquivo => $info) {
-            $ativo = ($pagina === $arquivo) ? ' ativo' : '';
-            $aria  = ($pagina === $arquivo) ? ' aria-current="page"' : '';
-
-            echo '<a class="nav-link' . $ativo . '" href="' . h($arquivo) . '"' . $aria . '>';
-            echo '<span class="nav-icon">' . icone($info[1], 17) . '</span>';
-            echo '<span>' . h($info[0]) . '</span>';
-            echo '</a>';
-        }
-        echo '</div>';
-    }
-    echo '</div></nav>';
 
     /* ---------- Conteúdo ---------- */
     echo '<main class="main-content" id="conteudo">';
@@ -306,13 +324,53 @@ a{color:var(--marca-600)}
 
 .icone{display:block;flex:none}
 
-.app-shell{min-height:100vh;display:flex;flex-direction:column}
+.app-shell{
+    min-height:100vh;display:grid;
+    grid-template-columns:248px minmax(0,1fr);
+    grid-template-rows:auto 1fr auto;
+}
+
+/* ---------- Menu lateral ---------- */
+.sidebar{
+    grid-column:1;grid-row:1 / -1;
+    position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;overflow-y:auto;
+    background:linear-gradient(180deg,var(--marca-900),var(--marca-800));
+    color:#fff;border-right:1px solid var(--linha-forte);
+}
+.sidebar-top{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:18px 16px 16px;border-bottom:1px solid rgba(255,255,255,.12);
+}
+.sidebar-fechar{
+    display:none;place-items:center;flex:none;
+    width:40px;height:40px;border-radius:6px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
+    color:#fff;cursor:pointer;
+}
+.sidebar-rodape{
+    margin-top:auto;padding:14px 20px;border-top:1px solid rgba(255,255,255,.12);
+    display:flex;justify-content:space-between;gap:8px;
+    color:#9fa9b5;font-size:11.5px;
+}
+.sidebar-overlay{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.55)}
+.sidebar-overlay[hidden]{display:none}
 
 /* ---------- Barra superior ---------- */
-.topbar{background:linear-gradient(180deg,var(--marca-900),var(--marca-800));color:#fff}
+.topbar{
+    grid-column:2;grid-row:1;
+    background:var(--branco);color:var(--tinta);
+    border-bottom:1px solid var(--linha);
+}
 .topbar-inner{
-    max-width:var(--largura);margin:0 auto;padding:12px 28px;
     display:flex;align-items:center;justify-content:space-between;gap:20px;
+    padding:6px 36px;
+}
+.menu-toggle{
+    display:none;place-items:center;flex:none;
+    width:44px;height:44px;border-radius:6px;
+    background:var(--marca-50);border:1px solid var(--linha-forte);
+    color:var(--marca-900);cursor:pointer;
 }
 
 .brand{display:flex;align-items:center;gap:13px;color:inherit;text-decoration:none;min-width:0}
@@ -332,32 +390,32 @@ a{color:var(--marca-600)}
 .brand-sub{font-size:12.5px;color:#a9b1bb;white-space:nowrap}
 
 .topbar-right{display:flex;align-items:center;gap:18px}
-.topbar-date{display:flex;align-items:center;gap:7px;font-size:13px;color:#a9b1bb;white-space:nowrap}
+.topbar-date{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--suave);white-space:nowrap}
 
 .user-menu{position:relative}
 .user-trigger{
     display:flex;align-items:center;gap:11px;
     padding:5px 8px 5px 5px;border-radius:40px;
-    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);
+    background:var(--marca-50);border:1px solid var(--linha);
     color:inherit;font:inherit;cursor:pointer;text-align:left;
     transition:background-color .15s,border-color .15s;
 }
-.user-trigger:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3)}
-.user-trigger:focus-visible{outline:3px solid #ffc247;outline-offset:2px}
+.user-trigger:hover{background:var(--marca-100);border-color:var(--marca-500)}
+.user-trigger:focus-visible{outline:3px solid var(--marca-600);outline-offset:2px}
 
 .avatar{
     display:grid;place-items:center;flex:none;
     width:36px;height:36px;border-radius:50%;
-    background:rgba(255,255,255,.16);color:#fff;
+    background:var(--marca-100);color:var(--marca-700);
     font-weight:700;font-size:14px;letter-spacing:.02em;
 }
 .avatar-lg{width:36px;height:36px}
 .avatar-azul{background:var(--marca-100);color:var(--marca-700)}
 
 .user-info{display:flex;flex-direction:column;min-width:0;line-height:1.2}
-.user-info strong{font-weight:600;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-info small{color:#a9b1bb;font-size:12px}
-.chevron{font-size:10px;color:#a9b1bb;padding-right:5px}
+.user-info strong{font-weight:600;font-size:14px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-info small{color:var(--suave);font-size:12px}
+.chevron{font-size:10px;color:var(--suave);padding-right:5px}
 
 .user-dropdown{
     position:absolute;right:0;top:calc(100% + 10px);z-index:60;
@@ -385,35 +443,40 @@ a{color:var(--marca-600)}
 .logout-link{color:var(--vermelho)}
 .logout-link:hover{background:var(--vermelho-bg);color:var(--vermelho)}
 
-/* ---------- Menu ---------- */
+/* ---------- Menu lateral ---------- */
 .menu{
-    position:sticky;top:0;z-index:30;
-    background:var(--branco);border-bottom:1px solid var(--linha-forte);
-    box-shadow:0 6px 14px -12px rgba(29,33,39,.4);
+    flex:1;min-height:0;
+    background:transparent;border:0;box-shadow:none;
 }
-.menu-inner{
-    max-width:var(--largura);margin:0 auto;padding:0 22px;
-    display:flex;overflow-x:auto;scrollbar-width:thin;
+.menu-inner{padding:10px 12px 24px;overflow-y:auto;scrollbar-width:thin}
+.nav-group{display:block}
+.nav-group + .nav-group{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
+.nav-group-titulo{
+    display:block;padding:0 12px 8px;
+    color:#9fa9b5;font-size:10.5px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
 }
-.nav-group{display:flex;flex:none}
-.nav-group + .nav-group{margin-left:8px;padding-left:8px;border-left:1px solid var(--linha)}
 
 .nav-link{
-    display:flex;align-items:center;gap:8px;white-space:nowrap;
-    padding:14px 12px 11px;
-    border-bottom:3px solid transparent;
-    color:var(--suave);text-decoration:none;font-weight:500;font-size:14.5px;
+    display:flex;align-items:center;gap:11px;white-space:nowrap;
+    padding:11px 12px;margin-bottom:2px;
+    border-left:3px solid transparent;border-radius:6px;
+    color:#c9d1da;text-decoration:none;font-weight:500;font-size:14px;
     transition:background-color .15s,color .15s,border-color .15s;
 }
-.nav-link:hover{color:var(--marca-900);background:var(--marca-50)}
-.nav-link.ativo{color:var(--marca-700);border-bottom-color:var(--marca-500);font-weight:700}
-.nav-link:focus-visible{outline:3px solid var(--marca-600);outline-offset:-3px}
-.nav-icon{display:inline-flex;flex:none}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.09)}
+.nav-link.ativo{
+    color:#fff;background:rgba(245,168,0,.14);
+    border-left-color:var(--marca-500);font-weight:700;
+}
+.nav-link:focus-visible{outline:3px solid var(--marca-500);outline-offset:1px}
+.nav-icon{display:inline-flex;flex:none;color:inherit}
 
 /* ---------- Conteúdo ---------- */
 .main-content{
-    flex:1;width:100%;max-width:var(--largura);
-    margin:0 auto;padding:28px 28px 52px;min-width:0;
+    grid-column:2;grid-row:2;
+    width:100%;max-width:var(--largura);
+    margin:0 auto;padding:30px 36px 52px;min-width:0;
 }
 
 .page-heading{
@@ -436,14 +499,14 @@ a{color:var(--marca-600)}
 
 /* ---------- Indicadores ---------- */
 .stats-grid{
-    display:grid;gap:16px;margin-bottom:24px;
+    display:grid;gap:12px;margin-bottom:18px;
     grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
 }
 .stat-card{
     --c:var(--marca-700);
     --cbg:var(--marca-50);
-    position:relative;display:flex;flex-direction:column;gap:2px;
-    padding:18px 20px 18px;
+    position:relative;display:flex;flex-direction:column;gap:0;
+    padding:8px 14px 9px;
     background:var(--branco);border:1px solid var(--linha);border-radius:var(--raio);
     box-shadow:var(--sombra);overflow:hidden;
 }
@@ -453,20 +516,20 @@ a{color:var(--marca-600)}
 .stat-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .stat-card span.stat-label{
     display:flex;align-items:center;
-    color:var(--suave);font-size:13.5px;font-weight:600;
+    color:var(--suave);font-size:11.5px;font-weight:600;
     text-transform:uppercase;letter-spacing:.04em;
 }
 .stat-icon{
     display:grid;place-items:center;flex:none;
-    width:38px;height:38px;border-radius:10px;
+    width:26px;height:26px;border-radius:7px;
     background:var(--cbg);color:var(--c);
 }
 .stat-card strong{
     font-family:var(--fonte-titulo);font-weight:700;font-variant-numeric:tabular-nums;
-    font-size:36px;line-height:1.15;letter-spacing:-.02em;color:var(--tinta);
-    margin-top:8px;
+    font-size:24px;line-height:1.1;letter-spacing:-.02em;color:var(--tinta);
+    margin-top:2px;
 }
-.stat-card small{color:var(--suave);font-size:13px}
+.stat-card small{color:var(--suave);font-size:11.5px;line-height:1.3}
 .stat-card small b{color:var(--c)}
 .stat-card.orange{--c:var(--laranja);--cbg:var(--laranja-bg)}
 .stat-card.blue{--c:var(--marca-700);--cbg:var(--marca-50)}
@@ -734,9 +797,9 @@ a{color:var(--marca-600)}
 .info-item dd{margin:2px 0 0;font-size:14.5px;font-weight:600;color:var(--tinta);word-break:break-word}
 
 /* ---------- Rodapé ---------- */
-.app-footer{border-top:1px solid var(--linha);background:#fff}
+.app-footer{grid-column:2;grid-row:3;border-top:1px solid var(--linha);background:#fff}
 .app-footer-inner{
-    max-width:var(--largura);margin:0 auto;padding:16px 28px;
+    max-width:var(--largura);margin:0 auto;padding:16px 36px;
     display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
     color:var(--suave-2);font-size:12.5px;
 }
@@ -818,7 +881,7 @@ a{color:var(--marca-600)}
     color:var(--marca-700);background:var(--marca-50);border:1px solid var(--marca-100);
     border-radius:3px;vertical-align:middle;
 }
-.stat-card strong.stat-data{font-size:21px;letter-spacing:-.01em;line-height:1.35;margin-top:9px}
+.stat-card strong.stat-data{font-size:17px;letter-spacing:-.01em;line-height:1.25;margin-top:3px}
 .cell-muted small,
 .table-wrap small.cell-muted{
     display:block;font-size:11.5px;color:var(--suave-2);
@@ -838,27 +901,97 @@ a{color:var(--marca-600)}
 
 .report-foot{margin:0 0 8px;color:var(--suave-2);font-size:12.5px;text-align:right}
 
+/* ---------- Gráficos de relatório ---------- */
+.grafico-barras{display:grid;gap:12px}
+.grafico-barra{
+    display:grid;grid-template-columns:minmax(90px,150px) minmax(0,1fr) 56px;
+    align-items:center;gap:10px;font-size:13px;
+}
+.grafico-barra-rotulo{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    color:var(--tinta-2);
+}
+.grafico-barra-trilho{
+    display:block;height:12px;border-radius:20px;
+    background:var(--marca-50);border:1px solid var(--linha);overflow:hidden;
+}
+.grafico-barra-preenchimento{
+    display:block;height:100%;border-radius:20px;
+    background:var(--marca-500);
+}
+.grafico-barra-valor{
+    text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--tinta);
+}
+
+.grafico-linha-wrap{width:100%;overflow:hidden}
+.grafico-svg{display:block;width:100%;height:auto}
+.grafico-grade{stroke:var(--linha);stroke-width:1;stroke-dasharray:3 3}
+.grafico-eixo{fill:var(--suave);font-size:10px;font-family:var(--fonte)}
+.grafico-area{fill:var(--marca-100);opacity:.5}
+.grafico-linha{
+    fill:none;stroke:var(--marca-600);stroke-width:2.5;
+    stroke-linejoin:round;stroke-linecap:round;
+}
+.grafico-ponto{fill:var(--marca-500);stroke:var(--branco);stroke-width:2}
+
+.grafico-rosca-layout{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.grafico-rosca{
+    position:relative;flex:none;width:160px;height:160px;border-radius:50%;
+    display:grid;place-items:center;
+}
+.grafico-rosca::after{
+    content:"";position:absolute;inset:28px;border-radius:50%;background:var(--branco);
+}
+.grafico-rosca-centro{
+    position:relative;z-index:1;display:flex;flex-direction:column;
+    align-items:center;line-height:1.15;
+}
+.grafico-rosca-centro strong{
+    font-family:var(--fonte-titulo);font-size:26px;color:var(--tinta);
+}
+.grafico-rosca-centro span{
+    font-size:11px;color:var(--suave);text-transform:uppercase;letter-spacing:.06em;
+}
+.grafico-legenda{list-style:none;margin:0;padding:0;display:grid;gap:8px;flex:1;min-width:170px}
+.grafico-legenda li{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--tinta-2)}
+.grafico-legenda-cor{
+    flex:none;width:12px;height:12px;border-radius:3px;
+    border:1px solid rgba(0,0,0,.18);
+}
+.grafico-legenda strong{
+    margin-left:auto;font-variant-numeric:tabular-nums;color:var(--tinta);
+}
+
 /* ---------- Telas menores ---------- */
 @media (max-width:1150px){
     .dashboard-grid,.dashboard-grid.igual{grid-template-columns:minmax(0,1fr)}
 }
-@media (max-width:900px){
-    .topbar-inner{padding:10px 16px}
-    .menu-inner{padding:0 8px}
+@media (max-width:980px){
+    .app-shell{grid-template-columns:minmax(0,1fr)}
+    .sidebar{
+        position:fixed;left:0;top:0;z-index:120;
+        width:min(280px,86vw);height:100vh;
+        transform:translateX(-105%);transition:transform .2s ease;
+        box-shadow:12px 0 40px rgba(0,0,0,.35);
+    }
+    .app-shell.menu-aberto .sidebar{transform:none}
+    .sidebar-fechar,.menu-toggle{display:grid}
+    .topbar,.main-content,.app-footer{grid-column:1}
+    .topbar-inner{padding:6px 16px;gap:12px}
     .main-content{padding:22px 16px 42px}
+    .app-footer-inner{padding:14px 16px}
+    .topbar-date,.brand-sub{display:none}
     .page-heading h1{font-size:25px}
     .page-badge{width:46px;height:46px}
-    .topbar-date{display:none}
     .content-card{padding:18px 16px 20px}
-    .brand-sub{display:none}
 }
 @media (max-width:680px){
     .user-info,.chevron{display:none}
     .user-trigger{padding:4px;background:none;border-color:transparent}
     .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .stat-card{padding:14px}
-    .stat-card strong{font-size:28px}
-    .stat-icon{width:32px;height:32px}
+    .stat-card{padding:8px 12px}
+    .stat-card strong{font-size:22px}
+    .stat-icon{width:24px;height:24px}
     .table-count{margin-left:0}
     .search-box{max-width:none}
     .profile-hero{padding:20px}
@@ -871,10 +1004,12 @@ a{color:var(--marca-600)}
 
 /* ---------- Impressão ---------- */
 @media print{
-    .topbar,.menu,.skip-link,.app-footer,.botao,.table-tools,.page-heading-actions,.alerta-fechar{display:none !important}
+    .topbar,.sidebar,.skip-link,.app-footer,.botao,.table-tools,.page-heading-actions,.alerta-fechar,.sidebar-overlay{display:none !important}
     body.app-body{background:#fff}
+    .app-shell{display:block}
     .main-content{padding:0;max-width:none}
     .content-card,.stat-card{box-shadow:none;break-inside:avoid}
+    .grafico-barras,.grafico-rosca,.grafico-svg{print-color-adjust:exact;-webkit-print-color-adjust:exact}
     .table-wrap{overflow:visible;max-height:none;border-color:#bbb}
     .table-wrap th{position:static;color:var(--marca-900);background:var(--marca-50);border-bottom:2px solid var(--linha-forte)}
     .table-wrap tr{break-inside:avoid}
@@ -895,6 +1030,31 @@ function script_base(): string
     return <<<'JS'
 (function () {
     'use strict';
+
+    /* ---------- Menu lateral (telas menores) ---------- */
+    var shell = document.querySelector('[data-app-shell]');
+    var abrirMenu = document.querySelector('[data-menu-abrir]');
+    var fecharMenu = document.querySelector('[data-menu-fechar]');
+    var overlay = document.querySelector('[data-menu-overlay]');
+
+    if (shell && abrirMenu) {
+        function definirMenu(aberto, devolverFoco) {
+            shell.classList.toggle('menu-aberto', aberto);
+            abrirMenu.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+            if (overlay) overlay.hidden = !aberto;
+            if (aberto && fecharMenu) fecharMenu.focus();
+            if (!aberto && devolverFoco) abrirMenu.focus();
+        }
+
+        abrirMenu.addEventListener('click', function () {
+            definirMenu(!shell.classList.contains('menu-aberto'), false);
+        });
+        if (fecharMenu) fecharMenu.addEventListener('click', function () { definirMenu(false, true); });
+        if (overlay) overlay.addEventListener('click', function () { definirMenu(false, true); });
+        document.addEventListener('keydown', function (evento) {
+            if (evento.key === 'Escape' && shell.classList.contains('menu-aberto')) definirMenu(false, true);
+        });
+    }
 
     /* ---------- Menu do usuário ---------- */
     document.querySelectorAll('[data-user-menu]').forEach(function (menu) {
