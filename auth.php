@@ -53,36 +53,159 @@ function perfis_validos(): array
     return ['Administrador', 'Gestor', 'Almoxarifado'];
 }
 
-/**
- * Códigos de autorização emitidos SOMENTE pelo administrador.
+/* -------------------------------------------------------------------------
+ * Códigos de autorização (gerados SOMENTE pelo administrador)
  *
- * Todos os perfis — Almoxarifado, Gestor e Administrador — precisam de
- * autorização para criar conta. O Gestor não autoriza ninguém.
- * Os códigos ficam em config_convites.php (fora do formulário) e podem ser
- * substituídos por variáveis de ambiente no servidor.
- */
-function chaves_convite(): array
-{
-    $config = @require __DIR__ . '/config_convites.php';
+ * Os códigos ficam na tabela `convites`, criados pela tela "Códigos de acesso".
+ * Todos os perfis — Almoxarifado, Gestor e Administrador — precisam informar
+ * um código válido. O Gestor não autoriza ninguém.
+ * ---------------------------------------------------------------------- */
 
-    return is_array($config) ? $config : [];
+/** Prefixo do código por perfil (AL, GE, AD). */
+function prefixo_convite(string $perfil): string
+{
+    return match (normalizar_perfil($perfil)) {
+        'Administrador' => 'AD',
+        'Gestor'        => 'GE',
+        default         => 'AL',
+    };
 }
 
-/** Retorna o perfil liberado por um código, ou null se o código for inválido. */
-function perfil_por_convite(?string $chave): ?string
+/** Situação exibida na tela do administrador. */
+function convite_situacao(array $convite): string
 {
-    $chave = trim((string)$chave);
-    if ($chave === '') {
+    if (!empty($convite['usado_em'])) {
+        return 'Usado';
+    }
+    if (!empty($convite['revogado_em'])) {
+        return 'Revogado';
+    }
+    if (!empty($convite['expira_em']) && strtotime((string)$convite['expira_em']) < time()) {
+        return 'Expirado';
+    }
+
+    return 'Disponível';
+}
+
+/** Gera um código novo para o perfil. Retorna o código pronto para entrega. */
+function convite_gerar(string $perfil, int $diasValidade = 7): string
+{
+    global $pdo;
+
+    $perfil = normalizar_perfil($perfil);
+    $prefixo = prefixo_convite($perfil);
+    $alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem 0/O/1/I para evitar confusão
+
+    do {
+        $codigo = $prefixo . '-';
+        for ($i = 0; $i < 8; $i++) {
+            $codigo .= $alfabeto[random_int(0, strlen($alfabeto) - 1)];
+        }
+
+        $existe = $pdo->prepare("SELECT COUNT(*) FROM convites WHERE codigo = ?");
+        $existe->execute([$codigo]);
+    } while ((int)$existe->fetchColumn() > 0);
+
+    $expira = $diasValidade > 0
+        ? date('Y-m-d H:i:s', time() + $diasValidade * 86400)
+        : null;
+
+    $stmt = $pdo->prepare("
+        INSERT INTO convites (codigo, perfil, criado_por, criado_em, expira_em)
+        VALUES (?, ?, ?, NOW(), ?)
+    ");
+    $stmt->execute([$codigo, $perfil, usuario_id(), $expira]);
+
+    return $codigo;
+}
+
+/**
+ * Valida um código digitado pelo usuário.
+ *
+ * @return array|null Dados do convite quando disponível para o perfil informado.
+ */
+function convite_validar(?string $codigo, ?string $perfil = null): ?array
+{
+    global $pdo;
+
+    $codigo = mb_strtoupper(trim((string)$codigo));
+    if ($codigo === '') {
         return null;
     }
 
-    foreach (chaves_convite() as $perfil => $codigo) {
-        if (is_string($codigo) && $codigo !== '' && hash_equals($codigo, $chave)) {
-            return normalizar_perfil((string)$perfil);
-        }
+    $stmt = $pdo->prepare("SELECT * FROM convites WHERE codigo = ? LIMIT 1");
+    $stmt->execute([$codigo]);
+    $convite = $stmt->fetch();
+
+    if (!$convite || !hash_equals((string)$convite['codigo'], $codigo)) {
+        return null;
+    }
+    if (convite_situacao($convite) !== 'Disponível') {
+        return null;
+    }
+    if ($perfil !== null && normalizar_perfil($convite['perfil']) !== normalizar_perfil($perfil)) {
+        return null;
     }
 
-    return null;
+    return $convite;
+}
+
+/** Marca o código como usado por uma conta recém-autorizada. */
+function convite_consumir(int $id, int $usuarioId): bool
+{
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        UPDATE convites
+           SET usado_em = NOW(), usado_por = ?
+         WHERE id = ? AND usado_em IS NULL AND revogado_em IS NULL
+    ");
+    $stmt->execute([$usuarioId, $id]);
+
+    return $stmt->rowCount() > 0;
+}
+
+/** Cancela um código que ainda não foi usado. */
+function convite_revogar(int $id): bool
+{
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        UPDATE convites
+           SET revogado_em = NOW()
+         WHERE id = ? AND usado_em IS NULL AND revogado_em IS NULL
+    ");
+    $stmt->execute([$id]);
+
+    return $stmt->rowCount() > 0;
+}
+
+function convite_excluir(int $id): bool
+{
+    global $pdo;
+
+    $stmt = $pdo->prepare("DELETE FROM convites WHERE id = ?");
+    $stmt->execute([$id]);
+
+    return $stmt->rowCount() > 0;
+}
+
+/** Lista os códigos com os nomes de quem criou e de quem usou. */
+function convites_listar(): array
+{
+    global $pdo;
+
+    $stmt = $pdo->query("
+        SELECT c.*,
+               criador.nome AS criado_por_nome,
+               usuario.nome AS usado_por_nome
+          FROM convites c
+          LEFT JOIN usuarios criador ON criador.id = c.criado_por
+          LEFT JOIN usuarios usuario ON usuario.id = c.usado_por
+         ORDER BY c.id DESC
+    ");
+
+    return $stmt->fetchAll();
 }
 
 /** Perfil fixado pelo link de cadastro (nunca aceito via POST). */
@@ -196,6 +319,7 @@ function paginas_do_sistema(): array
         'funcionarios.php',
         'estoque.php',
         'usuarios.php',
+        'convites.php',
         'validade.php',
         'relatorios.php',
         'perfil.php',
@@ -469,6 +593,18 @@ function autenticar(string $email, string $senha): array
         }
     }
 
+    iniciar_sessao_usuario($u);
+
+    return [true, ''];
+}
+
+/**
+ * Cria a sessão a partir de um usuário já validado (login ou autorização).
+ */
+function iniciar_sessao_usuario(array $u): void
+{
+    global $pdo;
+
     $perfil = normalizar_perfil($u['tipo_acesso'] ?? $u['funcao'] ?? null);
 
     session_regenerate_id(true);
@@ -494,8 +630,6 @@ function autenticar(string $email, string $senha): array
     } catch (Throwable $e) {
         error_log('Falha ao registrar último acesso: ' . $e->getMessage());
     }
-
-    return [true, ''];
 }
 
 function encerrar_sessao(): void

@@ -473,6 +473,30 @@ body.home-body {
     color: var(--marca-700);
 }
 
+.autorizacao-resumo {
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--marca-100);
+    border-radius: 8px;
+    background: var(--marca-50);
+    color: #6b4a00;
+    font-size: 13.5px;
+}
+.autorizacao-resumo dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    margin: 0;
+}
+.autorizacao-resumo dt { font-weight: 700; color: var(--marca-700); }
+.autorizacao-resumo dd { margin: 0; overflow-wrap: anywhere; }
+.login-form .form-group > input.codigo-autorizacao {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 17px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
 .login-security {
     display: flex;
     align-items: center;

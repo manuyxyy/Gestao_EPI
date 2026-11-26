@@ -80,6 +80,16 @@ cabecalho(
         </details>
 
         <details class="faq-item">
+            <summary>Como funciona o código de autorização do cadastro?</summary>
+            <p>
+                Primeiro você cria a conta com e-mail e senha. Em seguida aparece a tela de autorização:
+                informe o código gerado pelo administrador em <strong>Códigos de acesso</strong>.
+                O código é de uso único, serve somente para o perfil escolhido e pode expirar.
+                O gestor não autoriza cadastros.
+            </p>
+        </details>
+
+        <details class="faq-item">
             <summary>Por que não vejo a aba Funcionários no meu menu?</summary>
             <p>
                 O cadastro de funcionários é restrito ao perfil Administrador. Os perfis Gestor e Almoxarifado

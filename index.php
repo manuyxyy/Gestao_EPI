@@ -205,7 +205,8 @@ if ($bloqueio > 0) {
                 Ainda não tem cadastro?
                 <a class="login-link" href="cadastro.php?perfil=almoxarifado">Criar conta — Almoxarifado</a>
                 <span class="login-foot-areas">
-                    Todos os perfis precisam de autorização do administrador:
+                    Crie a conta com e-mail e senha e informe o código gerado pelo administrador.
+                    Outras áreas:
                     <a class="login-link" href="cadastro.php?perfil=gestor">Gestor</a> ·
                     <a class="login-link" href="cadastro.php?perfil=administrador">Administrador</a>
                 </span>

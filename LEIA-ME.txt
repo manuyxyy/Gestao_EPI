@@ -9,14 +9,18 @@ PROJETO EPISAFE - PHP E MYSQL
 
 CADASTRO POR AREA (SEGURANCA)
 - Ha tres links de cadastro: Almoxarifado, Gestor e Administrador.
+- ETAPA 1: a pessoa informa nome, e-mail e senha. A conta e criada como
+  "Inativo" (aguardando autorizacao).
+- ETAPA 2: aparece a pagina autorizacao.php, onde ela digita o codigo gerado
+  pelo administrador. So entao a conta e ativada e ela entra na sua area.
 - TODOS os perfis precisam de autorizacao do administrador. O Gestor nao
   autoriza nenhum cadastro.
-- Os codigos ficam em config_convites.php e devem ser trocados antes de usar.
-  Tambem e possivel usar as variaveis de ambiente EPISAFE_CONVITE_ALMOXARIFADO,
-  EPISAFE_CONVITE_GESTOR e EPISAFE_CONVITE_ADMIN no servidor.
-- O setor é definido automaticamente pelo perfil escolhido no link; o formulario
+- Para gerar codigos, o administrador abre "Codigos de acesso" (convites.php)
+  no menu. Escolhe o perfil e a validade (7 dias, 30 dias ou sem expiracao).
+  Cada codigo e de uso unico, pode ser revogado e fica na tabela convites.
+- Nao existem mais codigos fixos em config_convites.php.
+- O setor e definido automaticamente pelo perfil escolhido no link; o formulario
   nao aceita perfil nem setor enviados pelo navegador.
-- Depois de cadastrar, o usuario entra direto na pagina inicial do seu perfil.
 
 ACESSIBILIDADE
 - Botao flutuante no canto inferior direito (Alt+A): zoom, alto contraste,

@@ -3,9 +3,9 @@
  * Cadastro de novos usuários do EpiSafe.
  *
  * O perfil NUNCA é aceito pelo formulário: ele é fixado pelo link de cadastro
- * (?perfil=almoxarifado|gestor|administrador). TODOS os perfis exigem o código
- * de autorização emitido somente pelo administrador — o gestor não autoriza.
- * Após o cadastro, a pessoa entra direto na área do seu perfil.
+ * (?perfil=almoxarifado|gestor|administrador). A conta é criada aguardando
+ * autorização e a pessoa é levada à tela onde informa o código gerado somente
+ * pelo administrador. O gestor não autoriza ninguém.
  */
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/acessibilidade.php';
@@ -21,7 +21,6 @@ $erro          = '';
 $nome     = trim((string)($_POST['nome'] ?? ''));
 $email    = mb_strtolower(trim((string)($_POST['email'] ?? '')));
 $telefone = trim((string)($_POST['telefone'] ?? ''));
-$chave    = trim((string)($_POST['chave_convite'] ?? ''));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $senha     = (string)($_POST['senha'] ?? '');
@@ -33,10 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'Informe o nome completo (entre 3 e 100 caracteres).';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 100) {
         $erro = 'Informe um e-mail válido.';
-    } elseif (cadastro_exige_convite($perfilDestino)
-              && perfil_por_convite($chave) !== $perfilDestino) {
-        $erro = 'Autorização inválida para o perfil ' . $rotuloSetor
-              . '. Solicite o código ao administrador do sistema.';
     } elseif (mb_strlen($telefone) > 20) {
         $erro = 'O telefone deve ter no máximo 20 caracteres.';
     } elseif (mb_strlen($senha) < 8) {
@@ -53,10 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ((int)$existe->fetchColumn() > 0) {
                 $erro = 'Já existe uma conta cadastrada com esse e-mail.';
             } else {
+                // A conta nasce aguardando autorização; o acesso só é liberado
+                // depois que o código gerado pelo administrador for validado.
                 $stmt = $pdo->prepare("
                     INSERT INTO usuarios
                         (nome, email, senha, tipo_acesso, funcao, setor, telefone, status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, 'Ativo')
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'Inativo')
                 ");
                 $stmt->execute([
                     $nome,
@@ -68,19 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $telefone !== '' ? $telefone : null,
                 ]);
 
-                $_SESSION['cadastro_sucesso'] = 'Cadastro realizado com sucesso!';
-                $_SESSION['cadastro_email']   = $email;
+                $_SESSION['cadastro_pendente'] = [
+                    'id'     => (int)$pdo->lastInsertId(),
+                    'email'  => $email,
+                    'perfil' => $perfilDestino,
+                ];
 
-                // O cadastro já direciona para a área do perfil escolhido.
-                $entrou = autenticar($email, $senha);
-
-                if ($entrou[0]) {
-                    unset($_SESSION['cadastro_sucesso'], $_SESSION['cadastro_email']);
-                    flash('sucesso', 'Conta criada! Você foi direcionado à área de ' . $rotuloSetor . '.');
-                    redirecionar(pagina_inicial());
-                }
-
-                redirecionar('index.php?aviso=cadastro');
+                redirecionar('autorizacao.php');
             }
         } catch (PDOException $e) {
             error_log('Falha no cadastro de usuário: ' . $e->getMessage());
@@ -136,7 +127,7 @@ $perfilAtivo = mb_strtolower($perfilDestino);
                 <span>Epi<span>Safe</span></span>
             </a>
             <h1>Criar conta</h1>
-            <p>Escolha sua área. Todos os cadastros precisam de autorização do administrador.</p>
+            <p>Escolha sua área. Depois você informará o código de autorização gerado pelo administrador.</p>
         </header>
 
         <div class="cadastro-perfis" role="group" aria-label="Área do cadastro">
@@ -202,16 +193,6 @@ $perfilAtivo = mb_strtolower($perfilDestino);
                        autocomplete="tel">
             </div>
 
-            <div class="form-group">
-                <label for="chave_convite">Código de autorização <span class="obrigatorio">*</span></label>
-                <input type="text" id="chave_convite" name="chave_convite" required
-                       value="<?= h($chave) ?>" placeholder="Informe o código recebido"
-                       autocomplete="off">
-                <p class="field-help">
-                    Somente o administrador libera este código. O gestor não autoriza cadastros.
-                </p>
-            </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="senha">Senha <span class="obrigatorio">*</span></label>
@@ -258,8 +239,12 @@ $perfilAtivo = mb_strtolower($perfilDestino);
 
             <p class="field-help senha-ajuda">Use pelo menos 8 caracteres. A senha é gravada criptografada no banco.</p>
 
+            <p class="field-help cadastro-setor-fixo">
+                Etapa 1 de 2: após criar a conta, você será encaminhado para informar o código de autorização.
+            </p>
+
             <button type="submit" class="btn-login">
-                Criar minha conta
+                Criar conta e continuar
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>
@@ -277,7 +262,7 @@ $perfilAtivo = mb_strtolower($perfilDestino);
                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
-            <span>Conexão protegida · cadastro autorizado pelo administrador</span>
+            <span>Conexão protegida · autorização emitida somente pelo administrador</span>
         </div>
     </div>
 </main>

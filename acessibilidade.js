@@ -298,6 +298,13 @@
                 + 'Alt+L lê/para e Esc fecha.');
         }
 
+        if (tem(pergunta, ['gerar codigo', 'codigo de acesso', 'novo codigo'])) {
+            acoes = acaoPara('convites.php', 'Códigos de acesso');
+            return iniciar('Para gerar um código de acesso, abra Códigos de acesso no menu do '
+                + 'administrador. Escolha o perfil e a validade, gere o código e envie-o à pessoa. '
+                + 'Cada código serve para uma conta.', acoes);
+        }
+
         if (tem(pergunta, ['entrar', 'entro', 'entra', 'login', 'acessar', 'acesso',
                            'logar', 'senha', 'esqueci', 'bloquead'])) {
             if (arquivo === 'index.php') {
@@ -312,12 +319,13 @@
                 + 'automaticamente.', acoes);
         }
 
-        if (tem(pergunta, ['cadastr', 'conta', 'convite', 'autoriza', 'registr'])) {
+        if (tem(pergunta, ['cadastr', 'conta', 'convite', 'autoriza', 'codigo', 'registr'])) {
             acoes = acaoPara('cadastro.php?perfil=almoxarifado', 'Criar conta — Almoxarifado');
-            return iniciar('No cadastro, escolha a área: Almoxarifado, Gestor ou Administrador. '
-                + 'Todos os perfis exigem o código de autorização emitido pelo administrador — '
-                + 'o gestor não libera acessos. O setor é definido automaticamente e, ao concluir, '
-                + 'você já entra na página da sua área.', acoes);
+            return iniciar('O cadastro tem duas etapas: primeiro você informa nome, e-mail e senha '
+                + 'e escolhe a área (Almoxarifado, Gestor ou Administrador). Depois aparece a tela '
+                + 'de autorização, onde você digita o código gerado pelo administrador. '
+                + 'O setor é definido automaticamente e, ao autorizar, você entra na sua área. '
+                + 'O gestor não libera acessos.', acoes);
         }
 
         if (tem(pergunta, ['estoque', 'quantidade', 'reposicao', 'minimo'])) {

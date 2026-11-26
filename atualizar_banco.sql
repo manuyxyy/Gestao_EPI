@@ -83,6 +83,26 @@ DELIMITER ;
 CALL episafe_migrar();
 DROP PROCEDURE episafe_migrar;
 
+-- Códigos de autorização gerados pelo administrador (tela "Códigos de acesso")
+CREATE TABLE IF NOT EXISTS convites (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    codigo       VARCHAR(32) NOT NULL,
+    perfil       ENUM('Administrador', 'Almoxarifado', 'Gestor')
+                 NOT NULL DEFAULT 'Almoxarifado',
+    criado_por   INT NOT NULL,
+    criado_em    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expira_em    DATETIME DEFAULT NULL,
+    usado_em     DATETIME DEFAULT NULL,
+    usado_por    INT DEFAULT NULL,
+    revogado_em  DATETIME DEFAULT NULL,
+    UNIQUE KEY uq_convites_codigo (codigo),
+    KEY idx_convites_perfil (perfil),
+    CONSTRAINT fk_convites_criado_por FOREIGN KEY (criado_por)
+        REFERENCES usuarios(id) ON DELETE CASCADE,
+    CONSTRAINT fk_convites_usado_por FOREIGN KEY (usado_por)
+        REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Usuário administrador inicial (ignora se o e-mail já existir)
 -- E-mail: emanuelle.email@episafe.com | Senha: Mf/1426**
 INSERT IGNORE INTO usuarios

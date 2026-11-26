@@ -62,6 +62,7 @@ $vencimentos = buscar_todos($pdo, "
 $acoes = '';
 if (e_admin()) {
     $acoes .= '<a class="botao botao-sec" href="usuarios.php">' . icone('usuarios', 17) . ' Usuários</a>';
+    $acoes .= '<a class="botao botao-sec" href="convites.php">' . icone('chave', 17) . ' Códigos de acesso</a>';
 }
 if (perfil_pode_acessar('entregas.php')) {
     $acoes .= '<a class="botao" href="entregas.php">' . icone('mais', 17) . ' Nova entrega</a>';

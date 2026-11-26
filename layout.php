@@ -28,6 +28,7 @@ function icone(string $nome, int $tamanho = 18): string
         'editar'        => 'M12 20h9 M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z',
         'excluir'       => 'M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6 M10 11v6 M14 11v6',
         'chave'         => 'M21 2l-2 2 M15.5 8.5 19 5l2 2-3.5 3.5 M10.5 12.5a5 5 0 1 1-7 7 5 5 0 0 1 7-7z M10.5 12.5 15.5 7.5',
+        'copiar'        => 'M9 9h11v11H9z M5 15H4V4h11v1',
         'mais'          => 'M12 5v14 M5 12h14',
         'salvar'        => 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z M17 21v-8H7v8 M7 3v5h8',
         'imprimir'      => 'M6 9V2h12v7 M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2 M6 14h12v8H6z',
@@ -80,6 +81,7 @@ function menu_do_sistema(): array
         'Controle' => [
             'validade.php'   => ['Validade dos CAs', 'validade'],
             'relatorios.php' => ['Relatórios', 'relatorios'],
+            'convites.php'   => ['Códigos de acesso', 'chave'],
         ],
         'Ajuda' => [
             'suporte.php' => ['Suporte', 'suporte'],
@@ -619,6 +621,18 @@ a{color:var(--marca-600)}
 .botao-ghost{background:transparent;border-color:transparent;color:var(--marca-700);padding:6px 8px}
 .botao-ghost:hover{background:var(--marca-50)}
 .botao[disabled]{opacity:.55;cursor:not-allowed}
+
+/* Código recém-gerado (Códigos de acesso) */
+.codigo-destaque{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    margin-top:18px;padding:16px 18px;
+    background:var(--marca-50);border:2px dashed var(--marca-500);border-radius:var(--raio);
+}
+.codigo-destaque small{display:block;margin-bottom:5px;color:var(--suave);font-size:12.5px}
+.codigo-destaque strong{
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:24px;letter-spacing:.1em;color:var(--marca-900);
+}
 
 /* ---------- Alertas ---------- */
 .alerta{
