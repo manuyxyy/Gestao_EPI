@@ -17,6 +17,12 @@
     var sintese = window.speechSynthesis || null;
     var falando = false;
 
+    var chatLog = document.getElementById('acess-chat-log');
+    var chatForm = document.getElementById('acess-chat-form');
+    var chatInput = document.getElementById('acess-chat-input');
+    var ouvirChat = painel ? painel.querySelector('[data-acess="ouvir-chat"]') : null;
+    var ultimaResposta = '';
+
     var prefs = carregar();
     aplicar();
 
@@ -168,8 +174,220 @@
             else iniciarLeitura();
         } else if (acao === 'parar') {
             pararLeitura();
+        } else if (acao === 'ouvir-chat') {
+            if (falando) pararLeitura();
+            falarTexto(ultimaResposta || 'Não há resposta recente.');
         }
     });
+
+    /* -------------------------------------------------- Chat de ajuda */
+
+    if (chatForm && chatLog && painel) {
+        chatForm.addEventListener('submit', function (evento) {
+            evento.preventDefault();
+            if (!chatInput) return;
+            var texto = chatInput.value.trim();
+            if (!texto) return;
+            chatInput.value = '';
+            enviarPergunta(texto);
+            chatInput.focus();
+        });
+
+        painel.querySelectorAll('[data-chat-pergunta]').forEach(function (gatilho) {
+            gatilho.addEventListener('click', function () {
+                enviarPergunta(gatilho.getAttribute('data-chat-pergunta') || '');
+                if (chatInput) chatInput.focus();
+            });
+        });
+    }
+
+    function enviarPergunta(texto) {
+        if (!chatLog || !texto) return;
+        adicionarMensagem(texto, 'voce');
+
+        var resposta = gerarResposta(texto);
+        var mensagem = adicionarMensagem(resposta.texto, 'bot');
+
+        (resposta.acoes || []).forEach(function (acao) {
+            var link = document.createElement('a');
+            link.href = acao.href;
+            link.textContent = acao.rotulo;
+            mensagem.appendChild(link);
+        });
+
+        ultimaResposta = resposta.texto;
+        if (ouvirChat) ouvirChat.hidden = !sintese;
+
+        if (resposta.imprimir) {
+            window.setTimeout(function () { window.print(); }, 200);
+        }
+    }
+
+    function adicionarMensagem(texto, quem) {
+        var item = document.createElement('div');
+        item.className = 'acess-chat-msg ' + (quem === 'voce' ? 'voce' : 'bot');
+        var rotulo = document.createElement('strong');
+        rotulo.textContent = quem === 'voce' ? 'Você' : 'Ajudante';
+        var corpo = document.createElement('span');
+        corpo.textContent = texto;
+        item.appendChild(rotulo);
+        item.appendChild(corpo);
+        chatLog.appendChild(item);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        return item;
+    }
+
+    function normalizar(texto) {
+        var valor = String(texto || '').toLowerCase();
+        return valor.normalize
+            ? valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            : valor;
+    }
+
+    function tem(texto, termos) {
+        return termos.some(function (termo) { return texto.indexOf(termo) !== -1; });
+    }
+
+    function paginaAtual() {
+        var titulo = document.querySelector('main h1, .login-head h1');
+        return titulo ? titulo.textContent.trim() : document.title;
+    }
+
+    function acaoPara(arquivo, rotulo) {
+        var caminho = arquivo.split('?')[0];
+        if (location.pathname.indexOf(caminho) !== -1) return [];
+
+        var existe = document.querySelector('a[href="' + arquivo + '"]');
+        var publico = (caminho === 'index.php' || caminho === 'cadastro.php');
+        if (!existe && !publico) return [];
+
+        return [{ rotulo: rotulo, href: arquivo }];
+    }
+
+    function iniciar(texto, acoes) {
+        return { texto: texto, acoes: acoes || [], imprimir: false };
+    }
+
+    function gerarResposta(texto) {
+        var pergunta = normalizar(texto);
+        var acoes = [];
+        var arquivo = location.pathname.split('/').pop();
+
+        if (tem(pergunta, ['imprimir', 'impressao', 'pdf'])) {
+            if (arquivo === 'relatorios.php') {
+                var pronto = iniciar('Vou abrir a janela de impressão deste relatório. '
+                    + 'Escolha "Salvar como PDF" no navegador se quiser guardar o arquivo.');
+                pronto.imprimir = true;
+                return pronto;
+            }
+
+            acoes = acaoPara('relatorios.php', 'Abrir relatórios');
+            return iniciar(
+                acoes.length
+                    ? 'Abra os relatórios e use o botão "Imprimir relatório" no topo da página.'
+                    : 'Você está em ' + paginaAtual() + '. Para imprimir relatórios, entre no sistema e abra Relatórios.',
+                acoes
+            );
+        }
+
+        if (tem(pergunta, ['acessibilidade', 'contraste', 'zoom', 'texto', 'fonte',
+                           'voz', 'ler', 'leitura', 'atalho', 'teclado'])) {
+            return iniciar('No painel de acessibilidade: A-/A+ mudam o tamanho do texto; '
+                + '"Alto contraste", "Sublinhar links" e "Reduzir animações" ajustam a aparência; '
+                + '"Ler esta página" usa a voz do navegador. Atalhos: Alt+A abre o painel, '
+                + 'Alt+L lê/para e Esc fecha.');
+        }
+
+        if (tem(pergunta, ['entrar', 'entro', 'entra', 'login', 'acessar', 'acesso',
+                           'logar', 'senha', 'esqueci', 'bloquead'])) {
+            if (arquivo === 'index.php') {
+                return iniciar('Você já está na tela de acesso. Informe e-mail e senha e clique em '
+                    + '"Entrar no sistema". O olho ao lado da senha mostra o que foi digitado. '
+                    + 'Se esqueceu a senha, peça a redefinição ao administrador.');
+            }
+
+            acoes = acaoPara('index.php', 'Ir para o login');
+            return iniciar('Use o menu do usuário no canto superior e escolha "Sair do sistema". '
+                + 'Na tela de login, informe e-mail e senha. O sistema abre a página do seu perfil '
+                + 'automaticamente.', acoes);
+        }
+
+        if (tem(pergunta, ['cadastr', 'conta', 'convite', 'autoriza', 'registr'])) {
+            acoes = acaoPara('cadastro.php?perfil=almoxarifado', 'Criar conta — Almoxarifado');
+            return iniciar('No cadastro, escolha a área: Almoxarifado, Gestor ou Administrador. '
+                + 'Todos os perfis exigem o código de autorização emitido pelo administrador — '
+                + 'o gestor não libera acessos. O setor é definido automaticamente e, ao concluir, '
+                + 'você já entra na página da sua área.', acoes);
+        }
+
+        if (tem(pergunta, ['estoque', 'quantidade', 'reposicao', 'minimo'])) {
+            acoes = acaoPara('estoque.php', 'Abrir estoque');
+            return iniciar('No Estoque você consulta quantidades e níveis mínimos de cada EPI. '
+                + 'Os itens em vermelho precisam de reposição.', acoes);
+        }
+
+        if (tem(pergunta, ['entrega', 'entregar'])) {
+            acoes = acaoPara('entregas.php', 'Abrir entregas');
+            return iniciar('Em Entregas você registra a saída de EPIs: funcionário, equipamento, '
+                + 'quantidade e data. Use a busca para localizar um registro.', acoes);
+        }
+
+        if (tem(pergunta, ['devoluc', 'devolver'])) {
+            acoes = acaoPara('devolucoes.php', 'Abrir devoluções');
+            return iniciar('Em Devoluções informe a entrega devolvida, a data, a quantidade e o '
+                + 'estado do equipamento.', acoes);
+        }
+
+        if (tem(pergunta, ['movimentac', 'entrada', 'saida'])) {
+            acoes = acaoPara('movimentacoes.php', 'Abrir movimentações');
+            return iniciar('Movimentações mostra entradas, saídas e devoluções de EPIs em ordem cronológica.', acoes);
+        }
+
+        if (tem(pergunta, ['validade', 'vencimento', 'ca'])) {
+            acoes = acaoPara('validade.php', 'Abrir validade dos CAs');
+            return iniciar('Em Validade dos CAs você acompanha os certificados próximos do '
+                + 'vencimento e os já vencidos.', acoes);
+        }
+
+        if (tem(pergunta, ['epi', 'equipamento'])) {
+            acoes = acaoPara('epis.php', 'Abrir EPIs');
+            return iniciar('Em EPIs você cadastra os equipamentos, o número do CA e a validade. '
+                + 'O estoque de cada EPI fica em Estoque.', acoes);
+        }
+
+        if (tem(pergunta, ['funcionari', 'colaborador'])) {
+            acoes = acaoPara('funcionarios.php', 'Abrir funcionários');
+            return iniciar('Em Funcionários você cadastra quem recebe EPIs, com nome, setor e cargo.', acoes);
+        }
+
+        if (tem(pergunta, ['relatorio', 'grafico', 'indicador', 'estatistic'])) {
+            acoes = acaoPara('relatorios.php', 'Abrir relatórios');
+            return iniciar('Relatórios reúne gráficos e indicadores de entregas, devoluções, '
+                + 'estoque e validade. Há um botão para imprimir no topo da página.', acoes);
+        }
+
+        if (tem(pergunta, ['usuario', 'perfil', 'meus dados'])) {
+            acoes = acaoPara('perfil.php', 'Abrir meu perfil');
+            return iniciar('Em Meu perfil você vê seus dados e pode alterar a senha. '
+                + 'A gestão de usuários fica em Usuários, disponível para administradores.', acoes);
+        }
+
+        if (tem(pergunta, ['suporte', 'ajuda', 'duvida', 'problema', 'contato'])) {
+            acoes = acaoPara('suporte.php', 'Abrir suporte');
+            return iniciar('A página de Suporte traz contatos e perguntas frequentes. Se precisar '
+                + 'de acesso ou de um convite, fale com o administrador.', acoes);
+        }
+
+        if (tem(pergunta, ['menu', 'navegar', 'pagina', 'onde estou'])) {
+            return iniciar('Você está em ' + paginaAtual() + '. Use o menu lateral para ir às páginas '
+                + 'permitidas para o seu perfil. O link "Pular para o conteúdo" vai direto ao '
+                + 'conteúdo e o botão de acessibilidade fica no canto inferior direito.');
+        }
+
+        return iniciar('Posso ajudar com: entrar no sistema, criar conta, estoque, entregas, '
+            + 'devoluções, EPIs, relatórios, impressão, validade dos CAs e acessibilidade. '
+            + 'Escolha uma das perguntas rápidas ou escreva o que precisa.');
+    }
 
     /* -------------------------------------------------- Síntese de voz */
 
@@ -258,6 +476,21 @@
         falando = false;
         sincronizarLeitura();
         anunciar('Leitura interrompida.');
+    }
+
+    /** Fala um texto avulso (usado pelo chat, sem alterar o estado da leitura da página). */
+    function falarTexto(texto) {
+        if (!sintese) {
+            anunciar('Este navegador não oferece leitura em voz alta.');
+            return;
+        }
+
+        sintese.cancel();
+        var fala = new SpeechSynthesisUtterance(texto);
+        fala.lang = 'pt-BR';
+        fala.rate = 0.95;
+        fala.pitch = 1;
+        sintese.speak(fala);
     }
 
     /* -------------------------------------------------- Atalhos */

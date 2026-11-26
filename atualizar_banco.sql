@@ -84,12 +84,13 @@ CALL episafe_migrar();
 DROP PROCEDURE episafe_migrar;
 
 -- Usuário administrador inicial (ignora se o e-mail já existir)
+-- E-mail: emanuelle.email@episafe.com | Senha: Mf/1426**
 INSERT IGNORE INTO usuarios
     (nome, email, senha, tipo_acesso, funcao, setor, status)
 VALUES (
-    'Administrador',
-    'admin@episafe.local',
-    '$2y$10$X44NLDaoZSZirk.S891vfeBSNB6hRgemeSvlQOfdUP.Q1tgBsoG5y',
+    'Emanuelle',
+    'emanuelle.email@episafe.com',
+    '$2y$10$.7kVAM253gU0EB91aAz.3.dZO7fcTMLTuH5afHKVljn1wK58mJnh.',
     'Administrador',
     'Administrador',
     'Administração',

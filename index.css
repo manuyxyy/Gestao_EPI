@@ -402,6 +402,77 @@ body.home-body {
     text-decoration: underline;
 }
 
+.login-foot-areas {
+    display: block;
+    margin-top: 5px;
+    color: #8a97a6;
+    font-size: 12px;
+}
+
+/* ------------------------------------------------ Perfis do cadastro */
+.cadastro-perfis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+    margin: -6px 0 20px;
+}
+
+.cadastro-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 11px 10px;
+    border: 1px solid #b9c4d0;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--tinta);
+    text-decoration: none;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.cadastro-perfil:hover {
+    border-color: var(--marca-500);
+    background: var(--marca-50);
+}
+
+.cadastro-perfil strong {
+    font-size: 13.5px;
+    line-height: 1.25;
+}
+
+.cadastro-perfil small {
+    color: var(--suave);
+    font-size: 11.5px;
+    line-height: 1.35;
+}
+
+.cadastro-perfil span {
+    margin-top: 4px;
+    color: var(--marca-700);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.cadastro-perfil.ativo {
+    border: 2px solid var(--marca-600);
+    background: var(--marca-50);
+}
+
+.cadastro-setor-fixo {
+    margin: -8px 0 18px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    background: var(--marca-50);
+    color: #6b4a00;
+    font-size: 12.5px;
+}
+
+.cadastro-setor-fixo strong {
+    color: var(--marca-700);
+}
+
 .login-security {
     display: flex;
     align-items: center;
@@ -425,6 +496,10 @@ body.home-body {
     .form-row {
         grid-template-columns: 1fr;
         gap: 0;
+    }
+
+    .cadastro-perfis {
+        grid-template-columns: 1fr;
     }
 }
 

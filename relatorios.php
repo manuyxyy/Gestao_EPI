@@ -112,9 +112,17 @@ foreach ($porSetor as $linha) {
 cabecalho(
     'Relatórios e indicadores',
     'Consolidado de entregas, devoluções, estoque e validade',
-    '<button class="botao" type="button" onclick="window.print()">' . icone('imprimir', 17) . ' Imprimir relatório</button>'
+    '<button class="botao" type="button" id="imprimir-relatorio" onclick="window.print()">'
+        . icone('imprimir', 17) . ' Imprimir relatório</button>'
 );
 ?>
+
+<div class="print-cabecalho" aria-hidden="true">
+    <strong>EpiSafe</strong>
+    <h1>Relatório de indicadores</h1>
+    <p>Consolidado de entregas, devoluções, estoque e validade ·
+       Gerado em <?= h(date('d/m/Y \à\s H:i')) ?> por <?= h(usuario_atual()['nome']) ?>.</p>
+</div>
 
 <div class="stats-grid">
     <article class="stat-card orange">
@@ -339,8 +347,11 @@ cabecalho(
     <?php endif; ?>
 </div>
 
-<p class="report-foot">
-    Relatório gerado em <?= h(date('d/m/Y \à\s H:i')) ?> por <?= h(usuario_atual()['nome']) ?>.
-</p>
+<div class="report-foot">
+    <span>Relatório gerado em <?= h(date('d/m/Y \à\s H:i')) ?> por <?= h(usuario_atual()['nome']) ?>.</span>
+    <button class="botao botao-sm" type="button" onclick="window.print()">
+        <?= icone('imprimir', 16) ?> Imprimir / salvar PDF
+    </button>
+</div>
 
 <?php rodape(); ?>

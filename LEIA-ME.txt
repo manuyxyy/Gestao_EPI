@@ -1,58 +1,39 @@
-
 PROJETO EPISAFE - PHP E MYSQL
 
 1. Coloque a pasta Gestao_EPI dentro de htdocs.
 2. Inicie o Apache e o MySQL no XAMPP.
 3. Abra http://localhost/phpmyadmin
-4. Importe o arquivo gestao_epis.sql (instalação nova) ou execute
-   atualizar_banco.sql (sistema já instalado).
-5. Confira os dados de conexão em conexao.php.
-6. Acesse http://localhost:8080/Gestao_EPI/index.php
+4. Importe o arquivo gestao_epis.sql (ou atualizar_banco.sql em uma instalação antiga).
+5. Confira os dados de conexao em conexao.php.
+6. Acesse http://localhost:8080/Gestao_EPI/index.php  (use a porta 8080)
 
-Fluxo de acesso:
-- Em "Criar uma conta" o usuário faz o cadastro, que é salvo na tabela usuarios.
-- Os perfis disponíveis são: Administrador, Gestor e Almoxarifado.
-- O login redireciona direto para a página principal do perfil:
-  Administrador -> Painel; Gestor -> Relatórios; Almoxarifado -> Estoque.
-- O Administrador acessa todas as páginas. Os demais perfis acessam
-  somente as páginas da sua rotina.
-- O item Funcionários no menu lateral aparece apenas para o Administrador.
-- O item Suporte fica disponível para todos os perfis (contatos e perguntas
-  frequentes). Edite suporte.php para alterar os dados de contato.
-- O logotipo EpiSafe aparece na aba do navegador (favicon) em todas as telas.
+CADASTRO POR AREA (SEGURANCA)
+- Ha tres links de cadastro: Almoxarifado, Gestor e Administrador.
+- TODOS os perfis precisam de autorizacao do administrador. O Gestor nao
+  autoriza nenhum cadastro.
+- Os codigos ficam em config_convites.php e devem ser trocados antes de usar.
+  Tambem e possivel usar as variaveis de ambiente EPISAFE_CONVITE_ALMOXARIFADO,
+  EPISAFE_CONVITE_GESTOR e EPISAFE_CONVITE_ADMIN no servidor.
+- O setor é definido automaticamente pelo perfil escolhido no link; o formulario
+  nao aceita perfil nem setor enviados pelo navegador.
+- Depois de cadastrar, o usuario entra direto na pagina inicial do seu perfil.
 
-LAYOUT E NAVEGAÇÃO
-- Login e cadastro são telas minimalistas: um cartão centralizado, sem a
-  coluna de apresentação e sem informações extras.
-- Nas telas internas os atalhos ficam no menu lateral esquerdo, agrupados
-  por área. A página atual fica destacada.
-- Em telas pequenas (até 980px), o botão no topo abre/fecha o menu lateral;
-  Esc também fecha o menu e devolve o foco ao botão.
-- Relatórios trazem gráficos de linha (últimos 6 meses), rosca (setores) e
-  barras (EPIs), todos com descrição para leitores de tela.
+ACESSIBILIDADE
+- Botao flutuante no canto inferior direito (Alt+A): zoom, alto contraste,
+  links sublinhados, reducao de animacoes, leitura em voz alta (Alt+L) e
+  chat de ajuda para navegar pelo sistema.
+- No chat, perguntas como "como entro?", "onde estao as entregas?",
+  "aumentar texto" ou "imprimir relatorio" retornam instrucoes e links.
 
-Acesso inicial do administrador:
-- E-mail: admin@episafe.local
-- Senha:  Admin@12345  (troque em Meu perfil)
+RELATORIOS
+- Botao "Imprimir relatório" no topo e "Imprimir / salvar PDF" no final.
+- A versao impressa inclui cabecalho com data e usuario, graficos e tabelas.
 
-As senhas são armazenadas com password_hash().
+ACESSO INICIAL DO ADMINISTRADOR
+- E-mail: emanuelle.email@episafe.com
+- Senha:  Mf/1426**
+- Troque a senha no primeiro acesso, em Meu perfil.
 
-ACESSIBILIDADE (todas as telas)
-- O sistema abre em alto contraste: fundo escuro, texto claro, foco amarelo
-  e alvos de clique maiores. É possível voltar ao tema claro no painel.
-- Botão "Acessibilidade" (canto inferior direito) abre o painel com:
-  * A- / A+ (texto e tela de 100% a 200%);
-  * alto contraste ligado/desligado;
-  * sublinhar todos os links;
-  * reduzir animações;
-  * "Ler esta página" (síntese de voz do navegador, em português).
-- As preferências ficam salvas no navegador e valem para login, cadastro
-  e telas internas.
-- Atalhos: Alt+A abre/fecha o painel; Alt+L inicia/interrompe a leitura;
-  Esc fecha o painel (ou o menu lateral) e devolve o foco ao botão.
-- Navegação por teclado: Tab percorre links e campos, setas funcionam no
-  menu do usuário, Enter/Espaço ordena colunas de tabela. Há links para
-  pular direto ao conteúdo/formulário e às ferramentas de acessibilidade.
-- Leitores de tela recebem rótulos nos ícones, cabeçalhos de tabela,
-  anúncios de erros/avisos e atualizações de filtros/ordenação.
-
+O login usa a tabela usuarios. Perfis: Administrador, Gestor e Almoxarifado.
+Todos os cadastros precisam de autorizacao do administrador.
+A senha deve ser armazenada com password_hash().

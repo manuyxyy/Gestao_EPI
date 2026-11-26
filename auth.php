@@ -54,6 +54,54 @@ function perfis_validos(): array
 }
 
 /**
+ * Códigos de autorização emitidos SOMENTE pelo administrador.
+ *
+ * Todos os perfis — Almoxarifado, Gestor e Administrador — precisam de
+ * autorização para criar conta. O Gestor não autoriza ninguém.
+ * Os códigos ficam em config_convites.php (fora do formulário) e podem ser
+ * substituídos por variáveis de ambiente no servidor.
+ */
+function chaves_convite(): array
+{
+    $config = @require __DIR__ . '/config_convites.php';
+
+    return is_array($config) ? $config : [];
+}
+
+/** Retorna o perfil liberado por um código, ou null se o código for inválido. */
+function perfil_por_convite(?string $chave): ?string
+{
+    $chave = trim((string)$chave);
+    if ($chave === '') {
+        return null;
+    }
+
+    foreach (chaves_convite() as $perfil => $codigo) {
+        if (is_string($codigo) && $codigo !== '' && hash_equals($codigo, $chave)) {
+            return normalizar_perfil((string)$perfil);
+        }
+    }
+
+    return null;
+}
+
+/** Perfil fixado pelo link de cadastro (nunca aceito via POST). */
+function perfil_de_cadastro(?string $param): string
+{
+    return match (mb_strtolower(trim((string)$param))) {
+        'adm', 'admin', 'administrador' => 'Administrador',
+        'gestor', 'gerente'            => 'Gestor',
+        default                        => 'Almoxarifado',
+    };
+}
+
+function cadastro_exige_convite(string $perfil): bool
+{
+    // Somente o administrador autoriza: TODOS os perfis exigem o código.
+    return in_array(normalizar_perfil($perfil), perfis_validos(), true);
+}
+
+/**
  * Converte qualquer variação gravada no banco (antiga ou nova) em um dos
  * perfis canônicos: Administrador, Gestor ou Almoxarifado.
  *

@@ -100,6 +100,39 @@ function ferramentas_acessibilidade(): string
         <button type="button" class="acess-parar" data-acess="parar" hidden>Parar leitura</button>
     </div>
 
+    <div class="acess-controle acess-chat" id="acess-chat">
+        <span class="acess-controle-titulo" id="acess-chat-titulo">Chat de ajuda</span>
+        <p class="acess-dica">Pergunte o que você quer fazer. Ele mostra atalhos e links desta página.</p>
+
+        <div class="acess-chat-log" id="acess-chat-log" role="log"
+             aria-labelledby="acess-chat-titulo" aria-live="polite" aria-relevant="additions">
+            <div class="acess-chat-msg bot">
+                <strong>Ajudante</strong>
+                <span>Olá! Posso ajudar a entrar, criar conta, encontrar páginas, imprimir relatórios e usar a acessibilidade.</span>
+            </div>
+        </div>
+
+        <div class="acess-chat-sugestoes" role="group" aria-label="Perguntas rápidas">
+            <button type="button" data-chat-pergunta="Como entro no sistema?">Como entrar</button>
+            <button type="button" data-chat-pergunta="Onde estão as entregas?">Entregas</button>
+            <button type="button" data-chat-pergunta="Como aumento o texto?">Aumentar texto</button>
+            <button type="button" data-chat-pergunta="Como criar conta?">Criar conta</button>
+            <button type="button" data-chat-pergunta="Quero imprimir o relatório">Imprimir relatório</button>
+        </div>
+
+        <form class="acess-chat-form" id="acess-chat-form">
+            <label class="sr-only" for="acess-chat-input">Escreva sua pergunta para o ajudante</label>
+            <input id="acess-chat-input" type="text" placeholder="Digite sua pergunta..."
+                   autocomplete="off" aria-describedby="acess-chat-dica">
+            <button type="submit" aria-label="Enviar pergunta">Enviar</button>
+        </form>
+
+        <button type="button" class="acess-parar" data-acess="ouvir-chat" hidden>
+            Ouvir última resposta
+        </button>
+        <p class="acess-dica" id="acess-chat-dica">As respostas aparecem acima e podem ser lidas em voz alta.</p>
+    </div>
+
     <p class="acess-atalhos">
         Atalhos: <kbd>Alt</kbd>+<kbd>A</kbd> abre este painel ·
         <kbd>Alt</kbd>+<kbd>L</kbd> ler/parar · <kbd>Esc</kbd> fecha

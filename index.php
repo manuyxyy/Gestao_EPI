@@ -203,7 +203,12 @@ if ($bloqueio > 0) {
 
             <p class="login-foot">
                 Ainda não tem cadastro?
-                <a class="login-link" href="cadastro.php">Criar uma conta</a>
+                <a class="login-link" href="cadastro.php?perfil=almoxarifado">Criar conta — Almoxarifado</a>
+                <span class="login-foot-areas">
+                    Todos os perfis precisam de autorização do administrador:
+                    <a class="login-link" href="cadastro.php?perfil=gestor">Gestor</a> ·
+                    <a class="login-link" href="cadastro.php?perfil=administrador">Administrador</a>
+                </span>
             </p>
 
             <div class="login-security">

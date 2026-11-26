@@ -219,8 +219,39 @@ html.acess-alto-contraste .login-help,
 html.acess-alto-contraste .senha-ajuda,
 html.acess-alto-contraste .ajuda,
 html.acess-alto-contraste .login-foot,
+html.acess-alto-contraste .login-foot-areas,
 html.acess-alto-contraste .login-security {
     color: #c7d1de;
+}
+
+html.acess-alto-contraste .cadastro-perfil {
+    background: #121821;
+    color: #f7f9fc;
+    border-color: #9fabbc;
+}
+
+html.acess-alto-contraste .cadastro-perfil small {
+    color: #c7d1de;
+}
+
+html.acess-alto-contraste .cadastro-perfil span,
+html.acess-alto-contraste .cadastro-perfil.ativo {
+    color: #ffd400;
+}
+
+html.acess-alto-contraste .cadastro-perfil.ativo {
+    border-color: #ffd400;
+    background: #2c2503;
+}
+
+html.acess-alto-contraste .cadastro-setor-fixo {
+    background: #2c2503;
+    color: #f7f9fc;
+    border: 1px solid #ffd400;
+}
+
+html.acess-alto-contraste .cadastro-setor-fixo strong {
+    color: #ffd400;
 }
 
 html.acess-alto-contraste .botao-sec,
@@ -577,6 +608,129 @@ html.acess-sem-movimento *::after {
     color: #ffffff;
     font: inherit;
     font-size: 11px;
+}
+
+/* ---------------------------------------------------------
+   Chat de ajuda (dentro do painel de acessibilidade)
+   --------------------------------------------------------- */
+
+.acess-chat-log {
+    max-height: 190px;
+    min-height: 84px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #667385;
+    border-radius: 6px;
+    background: #080b10;
+    scrollbar-width: thin;
+}
+
+.acess-chat-msg {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    border-left: 3px solid #9fabbc;
+    border-radius: 6px;
+    background: #121821;
+    font-size: 13px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.acess-chat-msg:last-child {
+    margin-bottom: 0;
+}
+
+.acess-chat-msg strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #ffd400;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.acess-chat-msg.voce {
+    border-left-color: #ffd400;
+    background: #2c2503;
+}
+
+.acess-chat-msg a {
+    display: inline-flex;
+    margin: 6px 6px 0 0;
+    padding: 4px 8px;
+    border: 1px solid #ffd400;
+    border-radius: 4px;
+    color: #ffd400;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.acess-chat-msg a:hover {
+    background: #2c2503;
+}
+
+.acess-chat-sugestoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.acess-chat-sugestoes button {
+    min-height: 34px;
+    padding: 5px 9px;
+    border: 1px solid #9fabbc;
+    border-radius: 16px;
+    background: #05070a;
+    color: #f7f9fc;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.acess-chat-sugestoes button:hover {
+    border-color: #ffd400;
+    color: #ffd400;
+}
+
+.acess-chat-form {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.acess-chat-form input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid #9fabbc;
+    border-radius: 6px;
+    background: #080b10;
+    color: #ffffff;
+    font: inherit;
+    font-size: 13px;
+}
+
+.acess-chat-form input:focus {
+    border-color: #ffd400;
+}
+
+.acess-chat-form button {
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid #ffd400;
+    border-radius: 6px;
+    background: #ffd400;
+    color: #05070a;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.acess-chat-form button:hover {
+    background: #ffe680;
 }
 
 /* ---------------------------------------------------------

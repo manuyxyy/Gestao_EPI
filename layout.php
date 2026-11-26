@@ -110,7 +110,7 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     echo '<meta name="theme-color" content="#05070a">';
     echo '<link rel="icon" type="image/svg+xml" href="assets/logo-episafe.svg">';
     echo '<link rel="apple-touch-icon" href="assets/logo-episafe.svg">';
-    echo '<title>' . h($titulo) . ' | EpiSafe</title>';
+    echo '<title>' . h($titulo) . '</title>';
     echo '<link rel="preconnect" href="https://fonts.googleapis.com">';
     echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
     echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap">';
@@ -164,7 +164,6 @@ function cabecalho(string $titulo, string $descricao = '', string $acoes = ''): 
     }
     echo '</div></nav>';
 
-    echo '<div class="sidebar-rodape"><span>EpiSafe</span><span>&copy; ' . date('Y') . '</span></div>';
     echo '</aside>';
     echo '<div class="sidebar-overlay" data-menu-overlay hidden></div>';
 
@@ -348,11 +347,6 @@ a{color:var(--marca-600)}
     background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
     color:#fff;cursor:pointer;
 }
-.sidebar-rodape{
-    margin-top:auto;padding:14px 20px;border-top:1px solid rgba(255,255,255,.12);
-    display:flex;justify-content:space-between;gap:8px;
-    color:#9fa9b5;font-size:11.5px;
-}
 .sidebar-overlay{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.55)}
 .sidebar-overlay[hidden]{display:none}
 
@@ -448,7 +442,7 @@ a{color:var(--marca-600)}
     flex:1;min-height:0;
     background:transparent;border:0;box-shadow:none;
 }
-.menu-inner{padding:10px 12px 24px;overflow-y:auto;scrollbar-width:thin}
+.menu-inner{height:100%;padding:10px 12px 24px;overflow-y:auto;scrollbar-width:thin}
 .nav-group{display:block}
 .nav-group + .nav-group{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)}
 .nav-group-titulo{
@@ -899,7 +893,13 @@ a{color:var(--marca-600)}
 .form-stack input:focus{outline:none;border-color:var(--marca-600);box-shadow:0 0 0 3px rgba(245,168,0,.28)}
 .form-stack .botao{justify-self:start;margin-top:2px}
 
-.report-foot{margin:0 0 8px;color:var(--suave-2);font-size:12.5px;text-align:right}
+.report-foot{
+    display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;
+    margin:0 0 8px;color:var(--suave-2);font-size:12.5px;text-align:right;
+}
+
+/* Cabeçalho exclusivo da versão impressa dos relatórios. */
+.print-cabecalho{display:none}
 
 /* ---------- Gráficos de relatório ---------- */
 .grafico-barras{display:grid;gap:12px}
@@ -1005,6 +1005,13 @@ a{color:var(--marca-600)}
 /* ---------- Impressão ---------- */
 @media print{
     .topbar,.sidebar,.skip-link,.app-footer,.botao,.table-tools,.page-heading-actions,.alerta-fechar,.sidebar-overlay{display:none !important}
+    .print-cabecalho{
+        display:block !important;margin:0 0 20px;padding-bottom:12px;
+        border-bottom:2px solid #333;color:#111;
+    }
+    .print-cabecalho strong{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8a5200}
+    .print-cabecalho h1{margin:2px 0 4px;font-size:22px;color:#111}
+    .print-cabecalho p{margin:0;font-size:12px;color:#555}
     body.app-body{background:#fff}
     .app-shell{display:block}
     .main-content{padding:0;max-width:none}
